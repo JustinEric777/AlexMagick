@@ -1,57 +1,29 @@
 from typing import Dict, Any
 
 MODEL_LIST: Dict[str, Any] = {
-    "llama3": {
-        "Transformers": {
-            "model_provider_path": "llm.model_llama_transformer",
-            "model_provider_name": "LlamaTransformerModel",
-            "model_path": "/data/models/llama3/torch",
-            "model_list": [
-                "Meta-Llama-3-8B",
-                "Meta-Llama-3-8B-Instruct",
-                "Llama3-8B-Chinese-Chat",
-                "Unichat-llama3-Chinese-8B"
-            ]
-        },
-        "llama.cpp": {
-            "model_provider_path": "llm.model_llama_cpp",
-            "model_provider_name": "LlamaCppModel",
-            "model_path": "/data/models/llama3/gguf",
-            "model_list": [
-                "Meta-Llama-3-8B-Instruct.gguf",
-                "Meta-Llama-3-8B-Instruct-Q8_0.gguf",
-                "Meta-Llama-3-8B-Instruct-Q6_K.gguf",
-                "Meta-Llama-3-8B-Instruct-Q4_K_M.gguf"
-            ]
-        },
-        "OpenVino": {
-            "model_provider_path": "llm.model_llama_openvino",
-            "model_provider_name": "LlamaOpenvinoModel",
-            "model_path": "/data/models/llama3/torch",
-            "model_list": [
-                "Meta-Llama-3-8B",
-                "Meta-Llama-3-8B-Instruct"
-            ]
-        },
-        "IPEX-LLM": {
-            "model_provider_path": "llm.model_llama_ipexllm",
-            "model_provider_name": "LlamaIpexLLMModel",
-            "model_path": "/data/models/llama3/torch",
-            "model_list": [
-                "Meta-Llama-3-8B",
-                "Meta-Llama-3-8B-Instruct"
-            ]
-        },
+    "Ali_CSANMT": {
+        "model_provider_path": "mt.model_ali_csanmt",
+        "model_provider_name": "AliCSANMTModel",
+        "model_path": "/data/models/mt/damo-csanmt-en-zh-large"
     },
-    "glm_4v": {
-        "Transformers": {
-            "model_provider_path": "llm.model_glm4v_transformer",
-            "model_provider_name": "LlamaTransformerModel",
-            "model_path": "/data/models/glm-4v/pytorch",
-            "model_list": [
-                "glm-4v-9b",
-                "glm-4v-9b-chat",
-            ]
-        }
+    "Opus_mt_en_zh": {
+        "model_provider_path": "mt.model_opus_mt",
+        "model_provider_name": "OpusMTModel",
+        "model_path": "/data/models/mt/opus-mt-en-zh"
+    },
+    "Meta_NLLB": {
+        "model_provider_path": "mt.model_meta_nllb",
+        "model_provider_name": "MetaNLLBModel",
+        "model_path": "/data/models/mt/nllb-200-distilled-600M"
+    },
+    "Meta_S2T": {
+        "model_provider_path": "mt.model_meta_s2t",
+        "model_provider_name": "MetaS2TModel",
+        "model_path": "/data/models/mt/s2t-medium-mustc-multilingual-st"
+    },
+    "Google_T5": {
+        "model_provider_path": "mt.model_google_t5",
+        "model_provider_name": "GoogleT5Model",
+        "model_path": "/data/models/mt/t5_translate_en_ru_zh_large_1024"
     }
 }

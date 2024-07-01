@@ -4,18 +4,13 @@ from typing import Any
 
 class BaseModel(metaclass=abc.ABCMeta):
     model: Any = None
-    tokenizer: Any = None
-    streamer: Any = None
+    processor: Any = None
 
     @abc.abstractmethod
     def load_model(self, model_path: str):
         pass
 
     @abc.abstractmethod
-    def generate_prompt(self, instruction: str):
-        pass
-
-    @abc.abstractmethod
-    def chat(self, history, temperature, top_p, slider_context_times):
+    def translate(self, text: str):
         pass
 

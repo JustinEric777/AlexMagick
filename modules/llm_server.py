@@ -30,7 +30,7 @@ def get_metric(infer_arch: str, model_name: str, cost_time: float, words_count: 
                 """
 
 
-def init_model(params):
+def init_model(params: dict):
     global llm_object
 
     model_name = params["model_name"]
