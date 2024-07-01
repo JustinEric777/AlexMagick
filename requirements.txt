@@ -1,0 +1,9 @@
+openvino==2024.2.0
+gradio==4.37.1
+llama-cpp-python==0.2.79
+optimum
+optimum_intel
+accelerate
+nncf
+mkl
+transformers
