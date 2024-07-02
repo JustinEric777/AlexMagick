@@ -11,9 +11,10 @@ class GoogleT5Model(BaseModel):
         self.processor = processor
 
     def translate(self, text: str):
+        text = f'translate to zh:{text}'
         inputs = self.processor(text, return_tensors="pt")
         generated_ids = self.model.generate(**inputs)
         outputs = self.processor.batch_decode(generated_ids, skip_special_tokens=True)
 
-        return outputs
+        return outputs[0]
 

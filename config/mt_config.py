@@ -16,10 +16,15 @@ MODEL_LIST: Dict[str, Any] = {
         "model_provider_name": "MetaNLLBModel",
         "model_path": "/data/models/mt/nllb-200-distilled-600M"
     },
-    "Meta_S2T": {
-        "model_provider_path": "mt.model_meta_s2t",
-        "model_provider_name": "MetaS2TModel",
-        "model_path": "/data/models/mt/s2t-medium-mustc-multilingual-st"
+    "Meta_M2M100": {
+        "model_provider_path": "mt.model_meta_m2m",
+        "model_provider_name": "MetaM2MModel",
+        "model_path": "/data/models/mt/m2m100_418M"
+    },
+    "Meta_MBart": {
+        "model_provider_path": "mt.model_meta_mbart",
+        "model_provider_name": "MetaMBartModel",
+        "model_path": "/data/models/mt/mbart-large-50-many-to-many-mmt"
     },
     "Google_T5": {
         "model_provider_path": "mt.model_google_t5",

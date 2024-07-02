@@ -1,8 +1,11 @@
 import gc
+import json
+import time
 import importlib
 from config.mt_config import MODEL_LIST
 from typing import List
 
+TASK_TYPE = "sequence-mt"
 mt_object = None
 
 
@@ -14,7 +17,8 @@ def init_model(params: dict):
     global mt_object
 
     model_name = params["model_name"]
-    if params['task_type'] == "mt" and model_name not in get_model_list():
+    print(params)
+    if params['task_type'] == TASK_TYPE and model_name not in get_model_list():
         model_name = get_model_list()[0]
 
     model_path = MODEL_LIST[model_name]["model_path"]
@@ -47,10 +51,26 @@ def reload_model(model_name: str) -> str:
     return model_name
 
 
-def translate(text: str) -> str:
+def get_metric(metric_info: dict) -> str:
+    return f"""
+            <span style="color: red">model_name：{metric_info["model_name"]}
+            cost_time：{metric_info["cost_time"]} 
+            words_count：{metric_info["words_count"]} 
+            single_word_cost_time：{metric_info["single_word_cost_time"]}</span>
+            """
+
+
+def translate(text: str, model_name: str) -> (str, str):
     global mt_object
 
+    start_time = time.time()
     outputs = mt_object.translate(text)
-    print("outputs =", outputs)
+    metric = {
+        "model_name": model_name,
+        "cost_time": round(time.time()-start_time, 3),
+        "words_count": len(outputs),
+        "single_word_cost_time":  round((time.time()-start_time)/len(outputs), 3)
+    }
+    print(f"outputs = {outputs}, metric = {json.dumps(metric)}")
 
-    return outputs
+    return outputs, get_metric(metric)

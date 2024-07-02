@@ -7,3 +7,4 @@ accelerate
 nncf
 mkl
 transformers
+tensorflow-cpu
