@@ -9,12 +9,12 @@ class AliCSANMTModel(BaseModel):
     def load_model(self, model_path: str):
         model = Model.from_pretrained(model_path)
         processor = Preprocessor.from_pretrained(model_path)
+        pipeline_mt = pipeline(task=Tasks.translation, model=model, preprocessor=processor)
 
-        self.model = model
+        self.model = pipeline_mt
         self.processor = processor
 
     def translate(self, text: str):
-        pipeline_mt = pipeline(task=Tasks.translation, model=self.model, preprocessor=self.processor)
-        outputs = pipeline_mt(input=text)
+        outputs = self.model(input=text)
 
         return outputs["translation"]
