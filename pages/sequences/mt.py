@@ -8,7 +8,7 @@ def init_model(params: dict):
 
 
 def reload_model(model_name: str):
-    mt.load_model(TASK_TYPE, model_name)
+    return mt.load_model(TASK_TYPE, model_name)
 
 
 def create_ui(args: dict):

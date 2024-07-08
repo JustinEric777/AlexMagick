@@ -19,7 +19,7 @@ def init_model(params: dict):
 
 
 def reload_model(arch_model: str, infer_arch: str, model_name: str):
-    llm.load_model(TASK_TYPE, arch_model, infer_arch, model_name)
+    return llm.load_model(TASK_TYPE, arch_model, infer_arch, model_name)
 
 
 def create_ui(args: dict):
@@ -41,21 +41,21 @@ def create_ui(args: dict):
                             label="模型",
                             info="请选择模型",
                             choices=get_model_arch_list(),
-                            value=args["arch_model"],
+                            value=args["arch_model"] if args["arch_model"] in get_model_arch_list() else get_model_arch_list()[0],
                             interactive=True
                         )
                         infer_arch = gr.Radio(
                             label="推理引擎",
                             info="请选择推理引擎",
-                            choices=get_inference_arch_list(args["arch_model"]),
-                            value=args["infer_arch"],
+                            choices=get_inference_arch_list(arch_model.value),
+                            value=args["infer_arch"] if args["arch_model"] in get_inference_arch_list(arch_model.value) else get_inference_arch_list(arch_model.value)[0],
                             interactive=True
                         )
                         model_name = gr.Dropdown(
                             label="推理模型",
                             info="请选择需要推理的模型",
                             choices=get_model_list(args["arch_model"], args["infer_arch"]),
-                            value=args["model_name"],
+                            value=args["model_name"] if args["model_name"] in get_model_list(arch_model.value, infer_arch.value) else get_model_list(arch_model.value, infer_arch.value)[0],
                             interactive=True
                         )
                         with gr.Row():
@@ -80,4 +80,4 @@ def create_ui(args: dict):
         slider_model_reload.click(reload_model, [arch_model, infer_arch, model_name], [arch_model, infer_arch, model_name], show_progress="full")
         infer_arch.change(update_model_list, [arch_model, infer_arch], [model_name])
 
-    llm_tab.select(reload_model, [arch_model, infer_arch, model_name], None)
+    llm_tab.select(reload_model, [arch_model, infer_arch, model_name], [arch_model, infer_arch, model_name])
