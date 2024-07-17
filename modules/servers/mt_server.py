@@ -2,7 +2,7 @@ import gc
 import json
 import time
 import importlib
-from modules.base_server import BaseServer
+from modules.servers.base_server import BaseServer
 from config.mt_config import MODEL_LIST
 from typing import List
 

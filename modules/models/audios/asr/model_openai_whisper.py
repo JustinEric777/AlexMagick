@@ -1,6 +1,7 @@
 import torch
+import torchaudio
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor
-from modules.vsr.base_model import BaseModel
+from modules.models.audios.asr.base_model import BaseModel
 
 
 class OpenAIWhisperModel(BaseModel):
@@ -14,7 +15,7 @@ class OpenAIWhisperModel(BaseModel):
             low_cpu_mem_usage=True,
             use_safetensors=True
         )
-        processor = AutoProcessor.from_pretrained(AutoModelForSpeechSeq2Seq)
+        processor = AutoProcessor.from_pretrained(model_path)
 
         self.device = device
         self.dtype = dtype
@@ -22,9 +23,10 @@ class OpenAIWhisperModel(BaseModel):
         self.processor = processor
 
     def generate(self, audio: str):
+        audio_info, sampling_rate = torchaudio.load(audio)
         inputs = self.processor(
-            audio,
-            sampling_rate=16000,
+            audio_info[0],
+            sampling_rate=sampling_rate,
             return_tensors="pt",
             truncation=False,
             padding="longest",
@@ -34,12 +36,8 @@ class OpenAIWhisperModel(BaseModel):
         generate_kwargs = {
             "max_new_tokens": 448,
             "num_beams": 1,
-            "condition_on_prev_tokens": False,
-            "compression_ratio_threshold": 1.35,
-            "temperature": (0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
-            "logprob_threshold": -1.0,
-            "no_speech_threshold": 0.6,
             "return_timestamps": True,
+            "do_sample": True
         }
 
         predict_ids = self.model.generate(
@@ -52,6 +50,6 @@ class OpenAIWhisperModel(BaseModel):
             decode_with_timestamps=False
         )
 
-        return predict_text
+        return predict_text[0]
 
 

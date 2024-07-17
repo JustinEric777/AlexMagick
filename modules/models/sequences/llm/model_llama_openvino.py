@@ -1,6 +1,6 @@
 import time
 from threading import Thread
-from modules.llm.base_model import BaseModel
+from modules.models.sequences.llm.base_model import BaseModel
 from transformers import AutoConfig, AutoTokenizer, TextIteratorStreamer
 from optimum.intel.openvino import OVModelForCausalLM
 

@@ -1,6 +1,6 @@
 import gradio as gr
 from shared import parser
-from pages import sequence, image, audio
+from pages import sequence, image, audio, video
 
 
 def get_default_tab_value(params: dict) -> dict:
@@ -11,7 +11,7 @@ def get_default_tab_value(params: dict) -> dict:
     return params
 
 
-def create_ui(params):
+def create_ui(params: dict):
     with gr.Blocks(theme=gr.themes.Soft()) as demo:
         gr.Markdown("""<h1 style="display:block; width:100%; margin: 20px"><center>Alex Magick AI Assistant</center></h1>""")
 
@@ -20,6 +20,7 @@ def create_ui(params):
             sequence.create_ui(params)
             image.create_ui(params)
             audio.create_ui(params)
+            video.create_ui(params)
 
     demo.queue().launch(share=False, debug=True, server_name="0.0.0.0")
 
@@ -27,4 +28,7 @@ def create_ui(params):
 if __name__ == "__main__":
     args = parser.parse_args()
     args_dict = vars(args)
-    create_ui(get_default_tab_value(args_dict))
+
+    # set default tab
+    args = get_default_tab_value(args_dict)
+    create_ui(args)

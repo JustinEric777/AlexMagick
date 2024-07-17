@@ -1,6 +1,6 @@
 import torch
 import time
-from modules.llm.base_model import BaseModel
+from modules.models.sequences.llm.base_model import BaseModel
 from ipex_llm import optimize_model
 from ipex_llm.transformers import AutoModelForCausalLM
 from transformers import AutoTokenizer

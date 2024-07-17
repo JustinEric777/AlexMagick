@@ -1,5 +1,5 @@
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
-from modules.mt.base_model import BaseModel
+from modules.models.sequences.mt.base_model import BaseModel
 
 
 class MetaNLLBModel(BaseModel):

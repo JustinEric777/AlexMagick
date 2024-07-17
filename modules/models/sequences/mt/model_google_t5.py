@@ -1,5 +1,5 @@
 from transformers import T5ForConditionalGeneration, T5Tokenizer
-from modules.mt.base_model import BaseModel
+from modules.models.sequences.mt.base_model import BaseModel
 
 
 class GoogleT5Model(BaseModel):

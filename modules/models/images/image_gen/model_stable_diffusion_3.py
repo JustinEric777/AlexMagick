@@ -1,7 +1,7 @@
 import torch
 from diffusers import StableDiffusion3Pipeline
 from transformers import T5EncoderModel, BitsAndBytesConfig
-from modules.image_gen.base_model import BaseModel
+from modules.models.images.image_gen.base_model import BaseModel
 
 
 class ModelStableDiffusion3(BaseModel):

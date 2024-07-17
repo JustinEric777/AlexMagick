@@ -2,7 +2,7 @@ from modelscope.models import Model
 from modelscope.preprocessors import Preprocessor
 from modelscope.pipelines import pipeline
 from modelscope.utils.constant import Tasks
-from modules.mt.base_model import BaseModel
+from modules.models.sequences.mt.base_model import BaseModel
 
 
 class AliCSANMTModel(BaseModel):

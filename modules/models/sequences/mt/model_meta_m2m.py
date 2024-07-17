@@ -1,5 +1,5 @@
 from transformers import M2M100ForConditionalGeneration, M2M100Tokenizer
-from modules.mt.base_model import BaseModel
+from modules.models.sequences.mt.base_model import BaseModel
 
 
 class MetaM2MModel(BaseModel):

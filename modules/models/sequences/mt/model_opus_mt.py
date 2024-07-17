@@ -1,5 +1,5 @@
 from transformers import AutoTokenizer, MarianMTModel
-from modules.mt.base_model import BaseModel
+from modules.models.sequences.mt.base_model import BaseModel
 
 
 class OpusMTModel(BaseModel):

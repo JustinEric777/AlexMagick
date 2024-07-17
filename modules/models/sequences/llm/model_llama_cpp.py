@@ -1,5 +1,5 @@
 import time
-from modules.llm.base_model import BaseModel
+from modules.models.sequences.llm.base_model import BaseModel
 from llama_cpp import Llama
 
 

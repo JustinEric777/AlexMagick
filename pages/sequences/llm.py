@@ -1,6 +1,7 @@
 import gradio as gr
+from typing import Union
 from modules import llm
-from modules.llm_server import get_inference_arch_list, get_model_arch_list, get_model_list, TASK_TYPE
+from modules.servers.llm_server import get_inference_arch_list, get_model_arch_list, get_model_list, TASK_TYPE
 
 
 def update_model_list(arch_model_name: str, infer_arch_name: str):
@@ -18,7 +19,7 @@ def init_model(params: dict):
     llm.load_model(params["task_type"], params["arch_model"], params["infer_arch"], params["model_name"])
 
 
-def reload_model(arch_model: str, infer_arch: str, model_name: str):
+def reload_model(arch_model: Union[str | None], infer_arch: Union[str | None], model_name: Union[str | None]):
     return llm.load_model(TASK_TYPE, arch_model, infer_arch, model_name)
 
 

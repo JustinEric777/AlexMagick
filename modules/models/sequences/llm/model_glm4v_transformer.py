@@ -3,7 +3,7 @@ import torch
 from threading import Thread
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
 
-from modules.llm.base_model import BaseModel
+from modules.models.sequences.llm.base_model import BaseModel
 
 
 class Glm4vTransformerModel(BaseModel):

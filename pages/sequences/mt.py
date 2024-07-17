@@ -1,13 +1,14 @@
+from typing import Union
 import gradio as gr
 from modules import mt
-from modules.mt_server import get_model_list, TASK_TYPE
+from modules.servers.mt_server import get_model_list, TASK_TYPE
 
 
 def init_model(params: dict):
     mt.load_model(params["task_type"], params["model_name"])
 
 
-def reload_model(model_name: str):
+def reload_model(model_name: Union[str | None]):
     return mt.load_model(TASK_TYPE, model_name)
 
 

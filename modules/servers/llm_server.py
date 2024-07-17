@@ -2,7 +2,7 @@ import os
 import gc
 import importlib
 from typing import List
-from modules.base_server import BaseServer
+from modules.servers.base_server import BaseServer
 from config.llm_config import MODEL_LIST
 
 TASK_TYPE = "sequence-llm"

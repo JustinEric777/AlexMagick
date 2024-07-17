@@ -1,5 +1,5 @@
 from transformers import Speech2TextProcessor, Speech2TextForConditionalGeneration
-from modules.mt.base_model import BaseModel
+from modules.models.audios.ast.base_model import BaseModel
 
 
 class MetaS2TModel(BaseModel):
@@ -10,7 +10,7 @@ class MetaS2TModel(BaseModel):
         self.model = model
         self.processor = processor
 
-    def translate(self, text: str):
+    def generate(self, text: str):
         inputs = self.processor(text, sampling_rate=16_000, return_tensors="pt")
         generated_ids = self.model.generate(
             input_ids=inputs["input_features"],
