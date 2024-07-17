@@ -35,7 +35,7 @@ class LLMServer(BaseServer):
             model_name = get_model_list(arch_model, infer_arch)[0]
 
         model_path = os.path.join(MODEL_LIST[arch_model][infer_arch]["model_path"], model_name)
-        model_provider_path = f'{__package__}.{MODEL_LIST[arch_model][infer_arch]["model_provider_path"]}'
+        model_provider_path = MODEL_LIST[arch_model][infer_arch]["model_provider_path"]
         model_provider_name = MODEL_LIST[arch_model][infer_arch]["model_provider_name"]
 
         llm_class_name = getattr(importlib.import_module(model_provider_path), model_provider_name)

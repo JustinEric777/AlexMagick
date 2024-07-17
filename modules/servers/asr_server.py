@@ -28,7 +28,7 @@ class ASRServer(BaseServer):
             model_name = get_model_list()[0]
 
         model_path = MODEL_LIST[model_name]["model_path"]
-        model_provider_path = f'{__package__}.{MODEL_LIST[model_name]["model_provider_path"]}'
+        model_provider_path = MODEL_LIST[model_name]["model_provider_path"]
         model_provider_name = MODEL_LIST[model_name]["model_provider_name"]
 
         mt_class_name = getattr(importlib.import_module(model_provider_path), model_provider_name)
