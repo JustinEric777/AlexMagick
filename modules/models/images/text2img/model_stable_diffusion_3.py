@@ -1,7 +1,7 @@
 import torch
 from diffusers import StableDiffusion3Pipeline
 from transformers import T5EncoderModel, BitsAndBytesConfig
-from modules.models.images.image_gen.base_model import BaseModel
+from modules.models.images.text2img.base_model import BaseModel
 
 
 class ModelStableDiffusion3(BaseModel):
@@ -18,28 +18,28 @@ class ModelStableDiffusion3(BaseModel):
             device=device
         )
 
-        model = StableDiffusion3Pipeline.from_pretrained(
+        pipline = StableDiffusion3Pipeline.from_pretrained(
             model_path,
             text_encoder_3=text_encoder,
             device_map="balanced",
             torch_dtype=dtype,
             device=device
-        )
+        ).to(device)
 
-        self.model = model
+        self.pipline = pipline
+        self.device = device
 
-    def generate(self, save_image_name, prompt, negative_prompt, num_inference_steps, height, width, guidance_scale):
-        image = self.model(
-            prompt=prompt,
+    def generate(self, positive_prompt, negative_prompt, seed, guidance_scale, num_inference_steps, height, width):
+        image = self.pipline(
+            prompt=positive_prompt,
             negative_prompt=negative_prompt,
+            guidance_scale=guidance_scale,
             num_inference_steps=num_inference_steps,
-            height=height,
             width=width,
-            guidance_scale=guidance_scale
+            height=height
         ).images[0]
-        image.save(save_image_name)
 
-        return save_image_name
+        return image
 
 
 

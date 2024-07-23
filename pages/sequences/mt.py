@@ -1,19 +1,10 @@
-from typing import Union
 import gradio as gr
+from pages.common import reload_model_ui
 from modules import mt
-from modules.servers.mt_server import get_model_list, TASK_TYPE
-
-
-def init_model(params: dict):
-    mt.load_model(params["task_type"], params["model_name"])
-
-
-def reload_model(model_name: Union[str | None]):
-    return mt.load_model(TASK_TYPE, model_name)
 
 
 def create_ui(args: dict):
-    init_model(args)
+    mt.init_model(args)
 
     with gr.Tab(label="MT Model", id="mt_tab") as mt_tab:
         with gr.Row():
@@ -34,17 +25,7 @@ def create_ui(args: dict):
                         wrap=True
                     )
             with gr.Column(scale=1):
-                with gr.Row():
-                    with gr.Accordion("model setting", open=True):
-                        model_name = gr.Dropdown(
-                            label="models",
-                            info="Please select the model to be infer...",
-                            choices=get_model_list(),
-                            value=args["model_name"] if args["model_name"] in get_model_list() else get_model_list()[0],
-                            interactive=True
-                        )
-                        with gr.Row():
-                            model_reload_bt = gr.Button("Load Model...", variant="primary")
+                infer_arch, model_name, model_version = reload_model_ui(mt, args)
 
         def update_results(original_text, translated_text, metric_value):
             items = results.value["data"]
@@ -54,10 +35,12 @@ def create_ui(args: dict):
             else:
                 items.append(new_row)
             return items
-        translate_bt.click(mt.generate, inputs=[text_input, model_name], outputs=[text_output, metric], queue=False).then(
+
+        translate_bt.click(mt.generate, inputs=[text_input, model_version], outputs=[text_output, metric], queue=False).then(
             update_results,  inputs=[text_input, text_output, metric], outputs=[results], queue=False
         )
-        model_reload_bt.click(reload_model, [model_name], [model_name], show_progress="full")
+
         clear.click(lambda: "", None, [text_input, text_output], queue=False)
 
-    mt_tab.select(reload_model, [model_name], [model_name])
+    mt_tab.select(mt.reload_model, [infer_arch, model_name, model_version], [infer_arch, model_name, model_version])
+

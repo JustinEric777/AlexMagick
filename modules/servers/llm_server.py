@@ -1,48 +1,12 @@
-import os
-import gc
-import importlib
-from typing import List
 from modules.servers.base_server import BaseServer
-from config.llm_config import MODEL_LIST
-
-TASK_TYPE = "sequence-llm"
-
-
-def get_model_arch_list() -> List[str]:
-    return [key for key in MODEL_LIST]
-
-
-def get_inference_arch_list(arch_model: str) -> List[str]:
-    return [key for key in MODEL_LIST[arch_model]]
-
-
-def get_model_list(arch_model: str, infer_arch: str) -> List[str]:
-    return MODEL_LIST[arch_model][infer_arch]["model_list"]
+from config.llm_config import MODEL_LIST, TASK_TYPE
 
 
 class LLMServer(BaseServer):
-    def load_model(self, task_type: str, arch_model: str, infer_arch: str, model_name: str):
-        if self.pipeline_object is not None:
-            del self.pipeline_object
-            gc.collect()
-
-        if task_type != TASK_TYPE:
-            return
-
-        if task_type == TASK_TYPE and model_name not in get_model_list(arch_model, infer_arch):
-            model_name = get_model_list(arch_model, infer_arch)[0]
-        if len(model_name) == 0:
-            model_name = get_model_list(arch_model, infer_arch)[0]
-
-        model_path = os.path.join(MODEL_LIST[arch_model][infer_arch]["model_path"], model_name)
-        model_provider_path = MODEL_LIST[arch_model][infer_arch]["model_provider_path"]
-        model_provider_name = MODEL_LIST[arch_model][infer_arch]["model_provider_name"]
-
-        llm_class_name = getattr(importlib.import_module(model_provider_path), model_provider_name)
-        self.pipeline_object = llm_class_name()
-        self.pipeline_object.load_model(model_path)
-
-        return arch_model, infer_arch, model_name
+    def __init__(self):
+        super().__init__()
+        self.model_list = MODEL_LIST
+        self.task_type = TASK_TYPE
 
     def generate(self, history, temperature, top_p, slider_context_times, infer_arch, model_name):
         messages = [one_message.copy() for one_message in history]

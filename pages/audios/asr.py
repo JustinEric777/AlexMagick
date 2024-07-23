@@ -1,19 +1,10 @@
 import gradio as gr
-from typing import Union
+from pages.common import reload_model_ui
 from modules import asr
-from modules.servers.asr_server import get_model_list, TASK_TYPE
-
-
-def init_model(params: dict):
-    asr.load_model(params["task_type"], params["model_name"])
-
-
-def reload_model(model_name: Union[None | str]):
-    return asr.load_model(TASK_TYPE, model_name)
 
 
 def create_ui(args: dict):
-    init_model(args)
+    asr.init_model(args)
 
     with gr.Tab("ASR Model", id="asr_tab") as asr_tab:
         with gr.Row():
@@ -44,17 +35,7 @@ def create_ui(args: dict):
                         wrap=True
                     )
             with gr.Column(scale=1):
-                with gr.Row():
-                    with gr.Accordion("model setting", open=True):
-                        model_name = gr.Dropdown(
-                            label="models",
-                            info="Please select the model to be infer...",
-                            choices=get_model_list(),
-                            value=args["model_name"] if args["model_name"] in get_model_list() else get_model_list()[0],
-                            interactive=True
-                        )
-                with gr.Row():
-                    model_reload_bt = gr.Button("Load Model...", variant="primary")
+                infer_arch, model_name, model_version = reload_model_ui(asr, args)
 
         def update_results(original_audio, translated_text, metric_value):
             items = results.value["data"]
@@ -69,11 +50,10 @@ def create_ui(args: dict):
                 items.append(new_row)
             return items
 
-        generate_bt.click(asr.generate, inputs=[input_audio, model_name], outputs=[text_output, metric], queue=False).then(
+        generate_bt.click(asr.generate, inputs=[input_audio, model_version], outputs=[text_output, metric], queue=False).then(
             update_results, inputs=[input_audio, text_output, metric], outputs=[results], queue=False
         )
-        model_reload_bt.click(reload_model, [model_name], [model_name], show_progress="full")
+
         clear.click(lambda: None, None, [input_audio, text_output, results], queue=False)
 
-    asr_tab.select(reload_model, [model_name], [model_name])
-
+    asr_tab.select(asr.reload_model, [infer_arch, model_name, model_version], [infer_arch, model_name, model_version])

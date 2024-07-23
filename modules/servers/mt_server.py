@@ -1,41 +1,14 @@
-import gc
 import json
 import time
-import importlib
 from modules.servers.base_server import BaseServer
-from config.mt_config import MODEL_LIST
-from typing import List
-
-TASK_TYPE = "sequence-mt"
-
-
-def get_model_list() -> List[str]:
-    return [key for key in MODEL_LIST]
+from config.mt_config import MODEL_LIST, TASK_TYPE
 
 
 class MtServer(BaseServer):
-    def load_model(self, task_type: str, model_name: str):
-        if self.pipeline_object is not None:
-            del self.pipeline_object
-            gc.collect()
-
-        if task_type != TASK_TYPE:
-            return
-
-        if task_type == TASK_TYPE and model_name not in get_model_list():
-            model_name = get_model_list()[0]
-        if len(model_name) == 0:
-            model_name = get_model_list()[0]
-
-        model_path = MODEL_LIST[model_name]["model_path"]
-        model_provider_path = MODEL_LIST[model_name]["model_provider_path"]
-        model_provider_name = MODEL_LIST[model_name]["model_provider_name"]
-
-        mt_class_name = getattr(importlib.import_module(model_provider_path), model_provider_name)
-        self.pipeline_object = mt_class_name()
-        self.pipeline_object.load_model(model_path)
-
-        return model_name
+    def __init__(self):
+        super().__init__()
+        self.task_type = TASK_TYPE
+        self.model_list = MODEL_LIST
 
     def generate(self, text: str, model_name: str) -> (str, str):
         start_time = time.time()

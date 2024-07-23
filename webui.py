@@ -20,7 +20,7 @@ def create_ui(params: dict):
             sequence.create_ui(params)
             image.create_ui(params)
             audio.create_ui(params)
-            video.create_ui(params)
+            # video.create_ui(params)
 
     demo.queue().launch(share=False, debug=True, server_name="0.0.0.0")
 
