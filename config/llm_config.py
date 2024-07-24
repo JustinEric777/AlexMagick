@@ -15,6 +15,14 @@ MODEL_LIST: Dict[str, Any] = {
                 "Unichat-llama3-Chinese-8B"
             ]
         },
+        "llama3.1": {
+            "model_provider_path": "modules.models.sequences.llm.model_llama_transformer",
+            "model_provider_name": "LlamaTransformerModel",
+            "model_path": "/data/models/llm/pytorch/llama3.1",
+            "model_list": [
+                "Meta-Llama-3.1-8B-Instruct",
+            ]
+        },
         "glm4": {
             "model_provider_path": "modules.models.llm.model_glm4v_transformer",
             "model_provider_name": "LlamaTransformerModel",

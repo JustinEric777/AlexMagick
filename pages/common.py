@@ -3,7 +3,7 @@ import gradio as gr
 
 def reload_model_ui(obj, args: dict):
     def reload_model(arch: str, model: str, version: str):
-        obj.reload_model(arch, model, version)
+        return obj.reload_model(arch, model, version)
 
     def update_model_list(arch: str, model: str):
         model_list = obj.get_model_list(arch, model)

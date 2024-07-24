@@ -9,7 +9,7 @@ def create_ui(args: dict):
     with gr.Tab(label="LLM Model", id="llm_tab") as llm_tab:
         with gr.Row():
             with gr.Column(scale=4):
-                chatbot = gr.Chatbot()
+                chatbot = gr.Chatbot(height=500)
                 msg = gr.Textbox(label="Chatbot Input", lines=5, placeholder="Shift + Enter Send Message...", )
                 with gr.Row():
                     clear = gr.Button("New Topic")
@@ -27,21 +27,21 @@ def create_ui(args: dict):
         def user(user_message, history):
             return "", history + [[user_message, None]]
 
-        msg.submit(user, [msg, chatbot], [msg, chatbot], queue=False).then(
+        msg.submit(user, [msg, chatbot], [msg, chatbot], queue=True).then(
             llm.generate,
-            [chatbot, slider_temp, slider_top_p, slider_context_times, infer_arch, model_name],
+            [chatbot, slider_temp, slider_top_p, slider_context_times],
             chatbot
         )
-        sent_bt.click(user, [msg, chatbot], [msg, chatbot], queue=False).then(
+        sent_bt.click(user, [msg, chatbot], [msg, chatbot], queue=True).then(
             llm.generate,
-            [chatbot, slider_temp, slider_top_p, slider_context_times, infer_arch, model_name],
+            [chatbot, slider_temp, slider_top_p, slider_context_times],
             chatbot
         )
         re_generate.click(
             llm.generate,
-            [chatbot, slider_temp, slider_top_p, slider_context_times,  infer_arch, model_name],
+            [chatbot, slider_temp, slider_top_p, slider_context_times],
             chatbot
         )
-        clear.click(lambda: [], None, chatbot, queue=False)
+        clear.click(lambda: [], None, chatbot, queue=True)
 
     llm_tab.select(llm.reload_model, [infer_arch, model_name, model_version], [infer_arch, model_name, model_version])

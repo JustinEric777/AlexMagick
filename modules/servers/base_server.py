@@ -1,8 +1,49 @@
 import abc
 import os
+import json
+import time
 import gc
 import importlib
 from typing import Dict, Any, Optional
+
+
+def get_format_metric(metric_info: dict):
+    metric_info_line = ""
+    if len(metric_info) == 0:
+        return metric_info_line
+
+    for key, val in metric_info.items():
+        metric_info_line += f"{key}: {val} \n"
+
+    return f"""<span style="color: red">{metric_info_line}</span>"""
+
+
+class Metric:
+    def __init__(self, **kwargs):
+        self.params = kwargs
+
+    def __call__(self, func):
+        def wrapper(*args, **kwargs):
+            start_time = time.time()
+
+            result = func(*args, **kwargs)
+
+            metric = {
+                "infer_arch": args[0].infer_arch,
+                "model_name": args[0].model_name,
+                "model_version": args[0].model_version_name,
+                "cost_time": round(time.time()-start_time, 3)
+            }
+
+            if "sequence-mt" in args[0].task_type:
+                metric["words_count"] = len(result)
+                metric["single_word_cost_time"] = round(metric["cost_time"]/metric["words_count"], 3)
+
+            print(f"[{args[0].infer_arch}]: inputs = {json.dumps(args[1:])}, outputs = {result}, metric = {json.dumps(metric)}")
+
+            yield result, get_format_metric(metric)
+
+        return wrapper
 
 
 class BaseServer(abc.ABC):
@@ -40,8 +81,6 @@ class BaseServer(abc.ABC):
         return infer_arch, model_name, model_version
 
     def init_model(self, params: dict):
-        if len(params) < 4:
-            raise Exception("params nums is less ...")
         if "task_type" not in params:
             raise Exception("param task_type is empty")
         if "infer_arch" not in params:
@@ -87,7 +126,7 @@ class BaseServer(abc.ABC):
     def generate(self, **kwargs):
         pass
 
-    @abc.abstractmethod
+    @Metric()
     def get_metric(self, **kwargs):
         pass
 

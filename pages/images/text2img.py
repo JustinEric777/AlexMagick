@@ -29,7 +29,7 @@ def create_ui(args: dict):
             with gr.Column(scale=4):
                 results = gr.Dataframe(
                     label="Image Generated Results",
-                    headers=["Positive Prompt", "Negative Prompt", "Metric"],
+                    headers=["Positive Prompt", "Negative Prompt", "params", "Metric"],
                     datatype="markdown",
                     column_widths=[40, 40, 20],
                     wrap=True
@@ -51,14 +51,14 @@ def create_ui(args: dict):
                                 minimum=256,
                                 maximum=MAX_IMAGE_SIZE,
                                 step=64,
-                                value=512,
+                                value=1024,
                             )
                             height = gr.Slider(
                                 label="Height",
                                 minimum=256,
                                 maximum=MAX_IMAGE_SIZE,
                                 step=64,
-                                value=512,
+                                value=1024,
                             )
                         with gr.Row():
                             guidance_scale = gr.Slider(
