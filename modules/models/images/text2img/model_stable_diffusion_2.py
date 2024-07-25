@@ -31,7 +31,7 @@ class ModelStableDiffusion2(BaseModel):
             width=width,
             height=height,
             generator=generator,
-        ).image[0]
+        ).images[0]
 
         return image
 

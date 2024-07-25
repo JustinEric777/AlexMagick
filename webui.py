@@ -3,6 +3,17 @@ from shared import parser
 from pages import sequence, image, audio, video
 
 
+custom_css = """
+<style>
+.text2image_examples {
+    white-space: break-space;
+    text-align: left;
+    padding: 10px;
+}
+</style>
+"""
+
+
 def get_default_tab_value(params: dict) -> dict:
     tabs = params["task_type"].split("-")
     params["default_first_tab"] = f"{tabs[0]}_tab"
@@ -12,7 +23,7 @@ def get_default_tab_value(params: dict) -> dict:
 
 
 def create_ui(params: dict):
-    with gr.Blocks(theme=gr.themes.Soft()) as demo:
+    with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
         gr.Markdown("""<h1 style="display:block; width:100%; margin: 20px"><center>Alex Magick AI Assistant</center></h1>""")
 
         with gr.Tabs(selected=params["default_first_tab"]):

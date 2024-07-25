@@ -41,7 +41,7 @@ class Metric:
 
             print(f"[{args[0].infer_arch}]: inputs = {json.dumps(args[1:])}, outputs = {result}, metric = {json.dumps(metric)}")
 
-            yield result, get_format_metric(metric)
+            return result, get_format_metric(metric)
 
         return wrapper
 

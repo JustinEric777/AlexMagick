@@ -9,13 +9,10 @@ class ModelStableDiffusion3(BaseModel):
         device = "cuda:0" if torch.cuda.is_available() else "cpu"
         dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
-        quantization_config = BitsAndBytesConfig(load_in_8bit=True)
-
         text_encoder = T5EncoderModel.from_pretrained(
             model_path,
             subfolder="text_encoder_3",
-            quantization_config=quantization_config,
-            device=device
+            use_safetensors=True
         )
 
         pipline = StableDiffusion3Pipeline.from_pretrained(

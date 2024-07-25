@@ -1,5 +1,7 @@
 import gradio as gr
 
+HOST_PREFIX = "http://10.172.10.83:7860/file="
+
 
 def reload_model_ui(obj, args: dict):
     def reload_model(arch: str, model: str, version: str):

@@ -1,5 +1,5 @@
 from config.llm_config import MODEL_LIST, TASK_TYPE
-from modules.servers.base_server import BaseServer, Metric
+from modules.servers.base_server import BaseServer
 
 
 class LLMServer(BaseServer):

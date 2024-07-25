@@ -1,5 +1,5 @@
 import gradio as gr
-from pages.common import reload_model_ui
+from pages.common import reload_model_ui, HOST_PREFIX
 from modules import asr
 
 
@@ -40,9 +40,8 @@ def create_ui(args: dict):
         def update_results(original_audio, translated_text, metric_value):
             items = results.value["data"]
             audio = f""" <audio controls>
-                              <source src="{original_audio}" type="audio/wav">
+                              <source src="{HOST_PREFIX}{original_audio}" type="audio/wav">
                          </audio>"""
-            print(audio)
             new_row = [audio, translated_text, metric_value.strip()]
             if len(items[0][0]) == 0 and len(items[0][1]) == 0:
                 items[0] = new_row

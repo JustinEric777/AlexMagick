@@ -33,7 +33,7 @@ MODEL_LIST: Dict[str, Any] = {
             "model_provider_name": "ModelStableDiffusion3",
             "model_path": "/data/models/image_gen",
             "model_list": [
-                "stable-diffusion-3-medium"
+                "stable-diffusion-3-medium-diffusers"
             ]
         }
     }
