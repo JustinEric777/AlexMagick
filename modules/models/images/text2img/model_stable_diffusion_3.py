@@ -1,6 +1,6 @@
 import torch
 from diffusers import StableDiffusion3Pipeline
-from transformers import T5EncoderModel, BitsAndBytesConfig
+from transformers import T5EncoderModel
 from modules.models.images.text2img.base_model import BaseModel
 
 

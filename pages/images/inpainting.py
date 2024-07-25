@@ -8,11 +8,11 @@ MAX_SEED = np.iinfo(np.int32).max
 MAX_IMAGE_SIZE = 1024
 
 
-def generate(image_input, positive_prompt, negative_prompt, randomize_seed, seed, guidance_scale, num_inference_steps, width, height):
+def generate(image_input, mask_image, positive_prompt, negative_prompt, randomize_seed, seed, guidance_scale, num_inference_steps, width, height):
     if randomize_seed:
         seed = random.randint(0, MAX_SEED)
 
-    result = inpainting.generate(image_input, positive_prompt, negative_prompt, seed, guidance_scale, num_inference_steps, width, height)
+    result = inpainting.generate(image_input, mask_image, positive_prompt, negative_prompt, seed, guidance_scale, num_inference_steps, width, height)
     seed_result = (*result, seed)
 
     return seed_result
@@ -21,7 +21,7 @@ def generate(image_input, positive_prompt, negative_prompt, randomize_seed, seed
 def create_ui(args: dict):
     inpainting.init_model(args)
 
-    with gr.Tab(label="Image2Image Model", id="image_image2image_tab") as image_inpainting_tab:
+    with gr.Tab(label="Inpainting Model", id="image_inpainting_tab") as image_inpainting_tab:
         with gr.Row():
             with gr.Column(scale=2):
                 with gr.Row():
@@ -45,13 +45,19 @@ def create_ui(args: dict):
         with gr.Row():
             with gr.Column(scale=4):
                 gr.Examples(
-                    label="Positive Prompt Examples",
+                    label="Input Examples",
                     examples=[
                         [
-                            """<img src="https://www.wehelpwin.com/Editor/ewebeditor/uploadfile/20231116104054532002.jpg" />""",
-                            """<img src="https://www.wehelpwin.com/Editor/ewebeditor/uploadfile/20231116104054532002.jpg" />""",
-                            "a woman with a short hair and a white shirt is posing for a picture with her hand on her chin, a photorealistic painting, Ayami Kojima, precisionism, perfect face",
-                            "dongwm-nt,bad finger, bad body"
+                            "./pages/examples/images/inpaint_1.png",
+                            "./pages/examples/images/inpaint_mask_1.png",
+                            "a black cat with glowing eyes, cute, adorable, disney, pixar, highly detailed, 8k",
+                            "bad anatomy, deformed, ugly, disfigured"
+                        ],
+                        [
+                            "./pages/examples/images/inpaint_1.png",
+                            "./pages/examples/images/inpaint_mask_1.png",
+                            "Face of a yellow cat, high resolution, sitting on a park bench",
+                            ""
                         ],
                     ],
                     elem_id="text2image_examples",
@@ -60,9 +66,9 @@ def create_ui(args: dict):
 
                 results = gr.Dataframe(
                     label="Image Generated Results",
-                    headers=["Positive Prompt", "Negative Prompt", "result", "Metric"],
+                    headers=["Init Image", "Mask Image", "Positive Prompt", "Negative Prompt", "result", "Metric"],
                     datatype="markdown",
-                    column_widths=[30, 30, 20, 20],
+                    column_widths=[15, 15, 20, 20, 15, 15],
                     wrap=True
                 )
             with gr.Column(scale=1):

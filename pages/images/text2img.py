@@ -41,7 +41,7 @@ def create_ui(args: dict):
         with gr.Row():
             with gr.Column(scale=4):
                 gr.Examples(
-                    label="Positive Prompt Examples",
+                    label="Input Examples",
                     examples=[
                         ["Astronaut in a jungle, cold color palette, muted colors, detailed, 8k"],
                         ["realistic, 1girl, (detail skin texture, ultra-detailed body), atmospheric scene, masterpiece, best quality,(cinematic light), solo, midriff, smile, navel, white crop top, brown hair, shirt, grin, outdoors, standing, [[pink headband]],[sport shorts]"],

@@ -1,5 +1,6 @@
 import torch
 from diffusers import StableDiffusionXLImg2ImgPipeline
+from diffusers.utils import load_image
 from modules.models.images.text2img.base_model import BaseModel
 
 
@@ -21,8 +22,10 @@ class ModelStableDiffusionXL(BaseModel):
 
     def generate(self, image, prompt, negative_prompt, seed, guidance_scale, num_inference_steps, height, width):
         generator = torch.Generator(self.device).manual_seed(seed)
-        image = self.pipline(
-            image=image,
+        init_image = load_image(image)
+
+        return self.pipline(
+            image=init_image,
             prompt=prompt,
             negative_prompt=negative_prompt,
             guidance_scale=guidance_scale,
@@ -30,9 +33,7 @@ class ModelStableDiffusionXL(BaseModel):
             width=width,
             height=height,
             generator=generator,
-        ).image[0]
-
-        return image
+        ).images[0]
 
 
 

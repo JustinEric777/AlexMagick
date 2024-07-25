@@ -38,31 +38,8 @@ def create_ui(args: dict):
                 with gr.Row():
                     image_output = gr.Image(type="filepath", label="Generated Output Image", interactive=False)
             with gr.Column(scale=1):
-                infer_arch, model_name, model_version = reload_model_ui(img2img, args)
-
-        with gr.Row():
-            with gr.Column(scale=4):
-                gr.Examples(
-                    label="Positive Prompt Examples",
-                    examples=[
-                        [
-                            """<img src="https://www.wehelpwin.com/Editor/ewebeditor/uploadfile/20231116104054532002.jpg" />""",
-                            "a woman with a short hair and a white shirt is posing for a picture with her hand on her chin, a photorealistic painting, Ayami Kojima, precisionism, perfect face",
-                            "dongwm-nt,bad finger, bad body"
-                        ],
-                    ],
-                    elem_id="text2image_examples",
-                    inputs=[image_input, positive_prompt, negative_prompt],
-                )
-
-                results = gr.Dataframe(
-                    label="Image Generated Results",
-                    headers=["Positive Prompt", "Negative Prompt", "result", "Metric"],
-                    datatype="markdown",
-                    column_widths=[30, 30, 20, 20],
-                    wrap=True
-                )
-            with gr.Column(scale=1):
+                with gr.Row():
+                    infer_arch, model_name, model_version = reload_model_ui(img2img, args)
                 with gr.Row():
                     with gr.Accordion("model params", open=True):
                         seed = gr.Slider(
@@ -103,6 +80,41 @@ def create_ui(args: dict):
                                 step=1,
                                 value=20,
                             )
+
+        with gr.Row():
+            with gr.Column(scale=4):
+                gr.Examples(
+                    label="Input Examples",
+                    examples=[
+                        [
+                            "./pages/examples/images/img2img_1.jpg",
+                            "a woman with a short hair and a white shirt is posing for a picture with her hand on her chin, a photorealistic painting, Ayami Kojima, precisionism, perfect face",
+                            "dongwm-nt,bad finger, bad body"
+                        ],
+                        [
+                            "./pages/examples/images/img2img_2.png",
+                            "cat wizard, gandalf, lord of the rings, detailed, fantasy, cute, adorable, Pixar, Disney, 8k",
+                            ""
+                        ],
+                        [
+                            "./pages/examples/images/img2img_3.png",
+                            "Astronaut in a jungle, cold color palette, muted colors, detailed, 8k",
+                            ""
+                        ],
+                    ],
+                    elem_id="text2image_examples",
+                    inputs=[image_input, positive_prompt, negative_prompt],
+                )
+
+                results = gr.Dataframe(
+                    label="Image Generated Results",
+                    headers=["Init Image",  "Positive Prompt", "Negative Prompt", "result", "Metric"],
+                    datatype="markdown",
+                    column_widths=[15, 25, 25, 15, 20],
+                    wrap=True
+                )
+            with gr.Column(scale=1):
+                gr.State()
 
         def update_results(image_input_value, positive_prompt_value, negative_prompt_value, result_image_value, metric_value):
             items = results.value["data"]
