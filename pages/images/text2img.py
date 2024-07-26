@@ -44,7 +44,6 @@ def create_ui(args: dict):
                         gr.Examples(
                             label="Input Examples",
                             examples=[
-                                ["Astronaut in a jungle, cold color palette, muted colors, detailed, 8k"],
                                 ["realistic, 1girl, (detail skin texture, ultra-detailed body), atmospheric scene, masterpiece, best quality,(cinematic light), solo, midriff, smile, navel, white crop top, brown hair, shirt, grin, outdoors, standing, [[pink headband]],[sport shorts]"],
                                 ["The image features a beautiful young woman wearing a white shirt and a black hat. She is standing in a grassy area, possibly a park, and appears to be posing for a picture. The woman is wearing a necklace, adding a touch of elegance to her outfit. The scene is bright and sunny, creating a pleasant atmosphere for the photo. High fashion,  dynamic, dramatic, elegant, high fashion Vogue cover Dramatic photography, supermodel, avant garde style"],
                                 ["The most beautiful woman ever seen wearing an off-shoulder tank top and loose shorts, lying back on the floor next to a fireplace. Beautiful sunset afternoon lights coming from the large window. (best quality, masterpiece:1.2), photorealistic, intricate details, symmetrical eyes, (beautiful detailed face), detailed lips, absurdres, dynamic angle, eyeliner, dark hair, yellowish eyes, slim waist, narrow shoulders."],
