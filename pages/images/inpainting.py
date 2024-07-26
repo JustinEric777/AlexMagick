@@ -23,55 +23,56 @@ def create_ui(args: dict):
 
     with gr.Tab(label="Inpainting Model", id="image_inpainting_tab") as image_inpainting_tab:
         with gr.Row():
-            with gr.Column(scale=2):
-                with gr.Row():
-                    image_base = gr.Image(type="filepath", label="Base Image", sources=["upload"])
-                with gr.Row():
-                    image_mask = gr.Image(type="filepath", label="Mask Image", sources=["upload"])
-                with gr.Row():
-                    positive_prompt = gr.Textbox(label="Positive Prompt", lines=6, placeholder="Positive Prompt Text...",)
-                with gr.Row():
-                    negative_prompt = gr.Textbox(label="Negative Prompt", lines=6, placeholder="Negative Prompt Text...",)
-                with gr.Row():
-                    generate_bt = gr.Button("Generate", variant="primary")
-                    clear = gr.Button("Clear")
-                    metric = gr.Textbox(visible=False)
-            with gr.Column(scale=2):
-                with gr.Row():
-                    image_output = gr.Image(type="filepath", label="Generated Output Image", interactive=False)
-            with gr.Column(scale=1):
-                infer_arch, model_name, model_version = reload_model_ui(inpainting, args)
-
-        with gr.Row():
             with gr.Column(scale=4):
-                gr.Examples(
-                    label="Input Examples",
-                    examples=[
-                        [
-                            "./pages/examples/images/inpaint_1.png",
-                            "./pages/examples/images/inpaint_mask_1.png",
-                            "a black cat with glowing eyes, cute, adorable, disney, pixar, highly detailed, 8k",
-                            "bad anatomy, deformed, ugly, disfigured"
-                        ],
-                        [
-                            "./pages/examples/images/inpaint_1.png",
-                            "./pages/examples/images/inpaint_mask_1.png",
-                            "Face of a yellow cat, high resolution, sitting on a park bench",
-                            ""
-                        ],
-                    ],
-                    elem_id="text2image_examples",
-                    inputs=[image_base, image_mask, positive_prompt, negative_prompt],
-                )
+                with gr.Row():
+                    with gr.Column(scale=2):
+                        with gr.Row():
+                            positive_prompt = gr.Textbox(label="Positive Prompt", lines=6, placeholder="Positive Prompt Text...",)
+                        with gr.Row():
+                            image_base = gr.Image(type="filepath", width=200, label="Base Image", sources=["upload"])
+                            image_mask = gr.Image(type="filepath", width=200, label="Mask Image", sources=["upload"])
+                        with gr.Row():
+                            generate_bt = gr.Button("Generate", variant="primary")
+                            clear = gr.Button("Clear")
+                            metric = gr.Textbox(visible=False)
+                    with gr.Column(scale=2):
+                        with gr.Row():
+                            negative_prompt = gr.Textbox(label="Negative Prompt", lines=6, placeholder="Negative Prompt Text...",)
+                        with gr.Row():
+                            image_output = gr.Image(type="filepath", label="Generated Output Image", interactive=False)
+                with gr.Row():
+                    with gr.Column(scale=4):
+                        gr.Examples(
+                            label="Input Examples",
+                            examples=[
+                                [
+                                    "./pages/examples/images/inpaint_1.png",
+                                    "./pages/examples/images/inpaint_mask_1.png",
+                                    "a black cat with glowing eyes, cute, adorable, disney, pixar, highly detailed, 8k",
+                                    "bad anatomy, deformed, ugly, disfigured"
+                                ],
+                                [
+                                    "./pages/examples/images/inpaint_1.png",
+                                    "./pages/examples/images/inpaint_mask_1.png",
+                                    "Face of a yellow cat, high resolution, sitting on a park bench",
+                                    ""
+                                ],
+                            ],
+                            elem_id="text2image_examples",
+                            inputs=[image_base, image_mask, positive_prompt, negative_prompt],
+                        )
 
-                results = gr.Dataframe(
-                    label="Image Generated Results",
-                    headers=["Init Image", "Mask Image", "Positive Prompt", "Negative Prompt", "result", "Metric"],
-                    datatype="markdown",
-                    column_widths=[15, 15, 20, 20, 15, 15],
-                    wrap=True
-                )
+                        results = gr.Dataframe(
+                            label="Image Generated Results",
+                            headers=["Init Image", "Mask Image", "Positive Prompt", "Negative Prompt", "result", "Metric"],
+                            datatype="markdown",
+                            column_widths=[15, 15, 20, 20, 15, 15],
+                            wrap=True
+                        )
+
             with gr.Column(scale=1):
+                with gr.Row():
+                    infer_arch, model_name, model_version = reload_model_ui(inpainting, args)
                 with gr.Row():
                     with gr.Accordion("model params", open=True):
                         seed = gr.Slider(
