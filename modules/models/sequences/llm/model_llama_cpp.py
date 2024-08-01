@@ -14,7 +14,7 @@ class LlamaCppModel(BaseModel):
                 {instruction}
                 """
 
-    def chat(self, history, temperature, top_p, slider_context_times):
+    def chat(self, history, max_tokens, temperature, top_p, slider_context_times):
         messages = [
             {"role": "system", "content": ""}
         ]
@@ -32,7 +32,7 @@ class LlamaCppModel(BaseModel):
 
         response = self.model.create_chat_completion(
             messages,
-            max_tokens=512,
+            max_tokens=max_tokens,
             top_k=50,
             top_p=top_p,
             temperature=temperature,

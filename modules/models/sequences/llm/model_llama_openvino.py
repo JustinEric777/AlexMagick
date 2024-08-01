@@ -1,15 +1,21 @@
 import time
 from threading import Thread
 from modules.models.sequences.llm.base_model import BaseModel
-from transformers import AutoConfig, AutoTokenizer, TextIteratorStreamer
+from transformers import AutoTokenizer, TextIteratorStreamer
 from optimum.intel.openvino import OVModelForCausalLM
 
 
 class LlamaOpenvinoModel(BaseModel):
     def load_model(self, model_path: str):
-        model = OVModelForCausalLM.from_pretrained(model_path, local_files_only=True, export=True)
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
-        streamer = TextIteratorStreamer(tokenizer, skip_prompt=True)
+        model = OVModelForCausalLM.from_pretrained(
+            model_path,
+            use_cache=False,
+            local_files_only=True
+        )
+
+        tokenizer = AutoTokenizer.from_pretrained(model_path, use_cache=False)
+        streamer = TextIteratorStreamer(tokenizer,
+                                        skip_prompt=True)
 
         self.model = model
         self.streamer = streamer
@@ -21,7 +27,7 @@ class LlamaOpenvinoModel(BaseModel):
                 {instruction}
                 """
 
-    def chat(self, history, temperature, top_p, slider_context_times):
+    def chat(self, history, max_tokens, temperature, top_p, slider_context_times):
         messages = [
             {"role": "system", "content": ""}
         ]
@@ -50,14 +56,14 @@ class LlamaOpenvinoModel(BaseModel):
 
         generate_input = {
             "input_ids": input_ids,
-            "max_new_tokens": 512,
+            "max_new_tokens": max_tokens,
             "do_sample": True,
             "top_k": 50,
             "top_p": top_p,
             "streamer": self.streamer,
             "temperature": temperature,
             "eos_token_id": terminators,
-            "pad_token_id":  self.tokenizer.pad_token_id
+            "pad_token_id":  self.tokenizer.eos_token_id
         }
 
         thread = Thread(target=self.model.generate, kwargs=generate_input)
@@ -66,8 +72,8 @@ class LlamaOpenvinoModel(BaseModel):
         start_time = time.time()
         bot_message = ''
         cost_time, words_count, single_word_cost_time = 0, 0, 0
-        print('[OpenvVino] Human:', history[-1][0])
-        print('[OpenvVino] Assistant: ', end='', flush=True)
+        print('[OpenVino] Human:', history[-1][0])
+        print('[OpenVino] Assistant: ', end='', flush=True)
         for new_text in self.streamer:
             print(new_text, end='', flush=True)
             if len(new_text) == 0:
@@ -84,4 +90,3 @@ class LlamaOpenvinoModel(BaseModel):
                 single_word_cost_time = round((end_time-start_time)/len(bot_message), 3)
 
             yield bot_message, cost_time, words_count, single_word_cost_time
-

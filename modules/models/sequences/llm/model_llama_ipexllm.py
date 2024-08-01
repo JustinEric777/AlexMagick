@@ -11,6 +11,7 @@ class LlamaIpexLLMModel(BaseModel):
         model = AutoModelForCausalLM.from_pretrained(model_path,
                                                      device_map="auto",
                                                      torch_dtype=torch.bfloat16,
+                                                     load_in_low_bit="bf16",
                                                      low_cpu_mem_usage=True,
                                                      trust_remote_code=True)
 
@@ -26,7 +27,7 @@ class LlamaIpexLLMModel(BaseModel):
                 {instruction}
                 """
 
-    def chat(self, history, temperature, top_p, slider_context_times):
+    def chat(self, history, max_tokens, temperature, top_p, slider_context_times):
         messages = [
             {"role": "system", "content": ""}
         ]
@@ -56,7 +57,7 @@ class LlamaIpexLLMModel(BaseModel):
         response = self.model.generate(
             input_ids,
             eos_token_id=terminators,
-            max_new_tokens=512,
+            max_new_tokens=max_tokens,
             do_sample=True,
             top_k=50,
             top_p=top_p,

@@ -120,7 +120,7 @@ class BaseServer(abc.ABC):
         if model_name not in self.model_list[infer_arch]:
             return []
 
-        return [key for key in self.model_list[infer_arch][model_name]["model_list"]]
+        return [name for name in self.model_list[infer_arch][model_name]["model_list"]]
 
     @abc.abstractmethod
     def generate(self, **kwargs):

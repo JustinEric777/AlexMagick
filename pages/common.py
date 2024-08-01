@@ -10,11 +10,11 @@ def reload_model_ui(obj, args: dict):
     def update_model_list(arch: str, model: str):
         model_list = obj.get_model_list(arch, model)
         return gr.Dropdown(
-            label="infer models",
-            info="please choose infer model...",
+            label="model version",
+            info="please choose model version",
             choices=model_list,
             value=model_list[0] if len(model_list) > 0 else "",
-            interactive=False
+            interactive=True
         )
 
     def update_arch_model_list(arch: str):
@@ -22,8 +22,8 @@ def reload_model_ui(obj, args: dict):
         model_list = update_model_list(arch, arch_model_list[0] if len(arch_model_list) > 0 else "")
 
         return gr.Dropdown(
-            label="arch model",
-            info="please choose arch model...",
+            label="model name",
+            info="please choose model name...",
             choices=arch_model_list,
             value=arch_model_list[0] if len(arch_model_list) > 0 else "",
             interactive=False

@@ -15,8 +15,7 @@ class Glm4vTransformerModel(BaseModel):
                                                      low_cpu_mem_usage=True,
                                                      trust_remote_code=True)
         model.eval()
-        streamer = TextIteratorStreamer(tokenizer,
-                                        skip_prompt=True)
+        streamer = TextIteratorStreamer(tokenizer, skip_prompt=True)
         self.model = model
         self.tokenizer = tokenizer
         self.streamer = streamer
@@ -27,10 +26,8 @@ class Glm4vTransformerModel(BaseModel):
                 {instruction}
                 """
 
-    def chat(self, history, temperature, top_p, slider_context_times):
-        messages = [
-            {"role": "system", "content": ""}
-        ]
+    def chat(self, history, max_tokens, temperature, top_p, slider_context_times):
+        messages = []
 
         history_true = history[1:-1]
         if slider_context_times > 0:
@@ -46,24 +43,18 @@ class Glm4vTransformerModel(BaseModel):
         input_ids = self.tokenizer.apply_chat_template(
             messages,
             add_generation_prompt=True,
-            return_tensors="pt"
+            return_tensors="pt",
+            return_dict=True
         ).to(self.model.device)
-
-        terminators = [
-            self.tokenizer.eos_token_id,
-            self.tokenizer.convert_tokens_to_ids("<|eot_id|>")
-        ]
 
         generate_input = {
             "input_ids": input_ids,
-            "max_new_tokens": 512,
+            "max_length": max_tokens,
             "do_sample": True,
-            "top_k": 50,
-            "top_p": top_p,
             "streamer": self.streamer,
-            "temperature": temperature,
-            "eos_token_id": terminators,
-            "pad_token_id":  self.tokenizer.pad_token_id
+            "top_k": 1,
+            "top_p": top_p,
+            "temperature": temperature
         }
 
         thread = Thread(target=self.model.generate, kwargs=generate_input)

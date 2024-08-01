@@ -1,25 +1,29 @@
 import time
 import torch
+import onnxruntime
 from threading import Thread
-from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
+from transformers import AutoTokenizer, TextIteratorStreamer
+from optimum.onnxruntime import ORTModelForCausalLM
 from modules.models.sequences.llm.base_model import BaseModel
 
 
-class LlamaTransformerModel(BaseModel):
+class LlamaOnnxRunTimeModel(BaseModel):
     def load_model(self, model_path: str):
+        onnxruntime_config = onnxruntime.SessionOptions()
+        onnxruntime_config.intra_op_num_threads = 8
+        onnxruntime_config.inter_op_num_threads = 8
         tokenizer = AutoTokenizer.from_pretrained(
             model_path,
             trust_remote_code=True
         )
-        model = AutoModelForCausalLM.from_pretrained(
+        model = ORTModelForCausalLM.from_pretrained(
             model_path,
             device_map="cpu",
             torch_dtype=torch.bfloat16,
-            low_cpu_mem_usage=True,
-            trust_remote_code=True
+            trust_remote_code=True,
+            session_options=onnxruntime_config
         )
 
-        model.eval()
         streamer = TextIteratorStreamer(tokenizer,
                                         skip_prompt=True)
         self.model = model
@@ -77,8 +81,8 @@ class LlamaTransformerModel(BaseModel):
         start_time = time.time()
         bot_message = ''
         cost_time, words_count, single_word_cost_time = 0, 0, 0
-        print('[Transformer] Human:', history[-1][0])
-        print('[Transformer] Assistant: ', end='', flush=True)
+        print('[OnnxRunTime] Human:', history[-1][0])
+        print('[OnnxRunTime] Assistant: ', end='', flush=True)
         for new_text in self.streamer:
             print(new_text, end='', flush=True)
             if len(new_text) == 0:

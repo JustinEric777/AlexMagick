@@ -13,8 +13,6 @@ class ModelStableDiffusion(BaseModel):
             model_path,
             torch_dtype=dtype,
             local_files_only=True,
-            use_safetensors=True,
-            low_cpu_mem_usage=True,
         ).to(device)
 
         self.pipline = pipline

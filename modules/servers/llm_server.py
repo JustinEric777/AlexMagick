@@ -8,7 +8,7 @@ class LLMServer(BaseServer):
         self.model_list = MODEL_LIST
         self.task_type = TASK_TYPE
 
-    def generate(self, history, temperature, top_p, slider_context_times):
+    def generate(self, history, max_tokens, temperature, top_p, slider_context_times):
         messages = [one_message.copy() for one_message in history]
         for line in messages:
             if line[1] is not None:
@@ -16,6 +16,7 @@ class LLMServer(BaseServer):
                 line[1] = arr[0]
         for message, cost_time, words_count, single_word_cost_time in self.pipeline_object.chat(
             messages,
+            max_tokens,
             temperature,
             top_p,
             slider_context_times
