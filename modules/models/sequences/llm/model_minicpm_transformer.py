@@ -52,20 +52,15 @@ class MiniCPMTransformerModel(BaseModel):
         cost_time, words_count, single_word_cost_time = 0, 0, 0
         print('[Transformer] Human:', history[-1][0])
         print('[Transformer] Assistant: ', end='', flush=True)
+
         for new_text in res:
             print(new_text, end='', flush=True)
-            if len(new_text) == 0:
-                continue
-            if new_text != ' ':
-                bot_message += new_text
+            bot_message += new_text
 
-            try:
-                res.__next__()
-            except StopIteration:
-                end_time = time.time()
-                cost_time = round(end_time-start_time, 3)
-                words_count = len(bot_message)
-                single_word_cost_time = round((end_time-start_time)/len(bot_message), 3)
+            end_time = time.time()
+            cost_time = round(end_time-start_time, 3)
+            words_count = len(bot_message)
+            single_word_cost_time = round((end_time-start_time)/len(bot_message), 3)
 
             yield bot_message, cost_time, words_count, single_word_cost_time
 
