@@ -22,6 +22,14 @@ MODEL_LIST: Dict[str, Any] = {
                 "glm-4-9b-chat",
                 "glm-4-9b",
             ]
+        },
+        "minicpm": {
+            "model_provider_path": "modules.models.sequences.llm.model_minicpm_transformer",
+            "model_provider_name": "MiniCPMTransformerModel",
+            "model_path": "/data/models/llm/pytorch/minicpm",
+            "model_list": [
+                "MiniCPM-V-2_6"
+            ]
         }
     },
     "llama.cpp": {
