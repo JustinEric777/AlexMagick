@@ -1,6 +1,7 @@
 import time
+from threading import Thread
 import torch
-from transformers import AutoModel, AutoTokenizer
+from transformers import AutoModel, AutoTokenizer, TextIteratorStreamer
 from modules.models.sequences.llm.base_model import BaseModel
 
 
@@ -17,9 +18,12 @@ class MiniCPMTransformerModel(BaseModel):
             torch_dtype=torch.bfloat16
         )
         model.eval()
+        streamer = TextIteratorStreamer(tokenizer,
+                                        skip_prompt=True)
 
         self.model = model
         self.tokenizer = tokenizer
+        self.streamer = streamer
 
     def generate_prompt(self, instruction: str):
         return f"""
@@ -39,21 +43,36 @@ class MiniCPMTransformerModel(BaseModel):
         input_message = {"role": "user", "content": [self.generate_prompt(history[-1][0].replace('<br>', '\n'))]}
         messages.append(input_message)
 
-        res = self.model.chat(
-            image=None,
-            msgs=messages,
-            tokenizer=self.tokenizer,
-            sampling=True,
-            stream=True
-        )
+        generate_input = {
+            "tokenizer": self.tokenizer,
+            "image": None,
+            "msgs": messages,
+            "sampling": True,
+            "stream": True,
+            "top_k": 50,
+            "top_p": top_p,
+            "max_new_tokens": max_tokens,
+            "streamer": self.streamer,
+            "temperature": temperature,
+        }
+
+        thread = Thread(target=self.model.generate, kwargs=generate_input)
+        thread.start()
+
+        # res = self.model.chat(
+        #     image=None,
+        #     msgs=messages,
+        #     tokenizer=self.tokenizer,
+        #     sampling=True,
+        #     stream=True
+        # )
 
         start_time = time.time()
         bot_message = ''
         cost_time, words_count, single_word_cost_time = 0, 0, 0
         print('[Transformer] Human:', history[-1][0])
         print('[Transformer] Assistant: ', end='', flush=True)
-
-        for new_text in res:
+        for new_text in self.streamer:
             print(new_text, end='', flush=True)
             bot_message += new_text
 

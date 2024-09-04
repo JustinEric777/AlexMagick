@@ -7,7 +7,7 @@ def reload_default_model():
 
 
 def create_ui(params: dict):
-    with gr.Tab("Image Models", id="image_tab") as image_tab:
+    with gr.Tab("MultiModal Models", id="multimodal_tab") as image_tab:
         with gr.Tabs(selected=params["default_second_tab"]):
             text2img.create_ui(params)
             img2img.create_ui(params)
