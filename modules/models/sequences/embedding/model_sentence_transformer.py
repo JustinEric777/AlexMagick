@@ -1,11 +1,11 @@
 import torch
 from typing import List, Union
 from numpy import ndarray
-from base_model import BaseModel
 from sentence_transformers import SentenceTransformer
+from modules.models.sequences.embedding.base_model import BaseModel
 
 
-class M3eModel(BaseModel):
+class SentenceTransformerModel(BaseModel):
     def load_model(self, model_path: str):
         device = "cuda:0" if torch.cuda.is_available() else "cpu"
         model = SentenceTransformer(model_path, device=device)

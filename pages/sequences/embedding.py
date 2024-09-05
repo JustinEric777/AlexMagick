@@ -1,31 +1,31 @@
 import gradio as gr
 from pages.common import reload_model_ui
-from modules import mt
+from modules import text2embedding
 
 
 def create_ui(args: dict):
-    mt.init_model(args)
+    text2embedding.init_model(args)
 
-    with gr.Tab(label="MT Model", id="mt_tab") as mt_tab:
+    with gr.Tab(label="Text2Embedding Model", id="text2embedding_tab") as mt_tab:
         with gr.Row():
             with gr.Column(scale=4):
                 with gr.Row():
-                    text_input = gr.Textbox(label="MT Input", lines=10, placeholder="Original Text...",)
-                    text_output = gr.Textbox(label="MT Output", lines=10, placeholder="Translated Text...",)
+                    text_input = gr.Textbox(label="Texts Input1", lines=10, placeholder="Original Texts...",)
+                    text_output = gr.Textbox(label="Search Input", lines=10, placeholder="Search Text...",)
                 with gr.Row():
-                    translate_bt = gr.Button("Translate", variant="primary")
+                    search_bt = gr.Button("Search", variant="primary")
                     clear = gr.Button("Clear")
                     metric = gr.Textbox(label="Metric Info", placeholder="metric info...", visible=False)
                 with gr.Row():
                     results = gr.Dataframe(
-                        label="Translate Results",
-                        headers=["Original Text", "Translate Text", "Metric"],
+                        label="Search Results",
+                        headers=["Search Input Text", "Search Result", "Metric"],
                         datatype="markdown",
                         column_widths=[40, 40, 20],
                         wrap=True
                     )
             with gr.Column(scale=1):
-                infer_arch, model_name, model_version = reload_model_ui(mt, args)
+                infer_arch, model_name, model_version = reload_model_ui(text2embedding, args)
 
         def update_results(original_text, translated_text, metric_value):
             items = results.value["data"]
@@ -36,11 +36,11 @@ def create_ui(args: dict):
                 items.append(new_row)
             return items
 
-        translate_bt.click(mt.generate, inputs=[text_input, model_version], outputs=[text_output, metric], queue=False).then(
+        search_bt.click(text2embedding.generate, inputs=[text_input, model_version], outputs=[text_output, metric], queue=False).then(
             update_results,  inputs=[text_input, text_output, metric], outputs=[results], queue=False
         )
 
         clear.click(lambda: "", None, [text_input, text_output], queue=False)
 
-    mt_tab.select(mt.reload_model, [infer_arch, model_name, model_version], [infer_arch, model_name, model_version])
+    mt_tab.select(text2embedding.reload_model, [infer_arch, model_name, model_version], [infer_arch, model_name, model_version])
 

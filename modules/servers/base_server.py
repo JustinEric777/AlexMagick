@@ -69,8 +69,8 @@ class BaseServer(abc.ABC):
         model_provider_path = self.model_list[infer_arch][model_name]["model_provider_path"]
         model_provider_name = self.model_list[infer_arch][model_name]["model_provider_name"]
 
-        llm_class_name = getattr(importlib.import_module(model_provider_path), model_provider_name)
-        pipeline_object = llm_class_name()
+        model_class_name = getattr(importlib.import_module(model_provider_path), model_provider_name)
+        pipeline_object = model_class_name()
         pipeline_object.load_model(model_path)
 
         self.pipeline_object = pipeline_object
@@ -89,7 +89,6 @@ class BaseServer(abc.ABC):
             raise Exception("param model_name is empty")
         if "model_version" not in params:
             raise Exception("param model_version is empty")
-
         self.__load_model(params["task_type"], params["infer_arch"], params["model_name"], params["model_version"])
 
     def reload_model(self, infer_arch: Optional[str] = None, model_name: Optional[str] = None, model_version: Optional[str] = None, default: bool = False):
