@@ -20,7 +20,7 @@ class SentenceTransformerModel(BaseModel):
         if isinstance(sentences, str):
             sentences = [sentences]
 
-        embeddings = self.model.encode(sentences)
+        embeddings = self.model.encode(sentences, normalize_embeddings=True)
 
         if return_numpy and not isinstance(embeddings, ndarray):
             embeddings = embeddings.numpy()

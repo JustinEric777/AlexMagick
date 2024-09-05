@@ -9,8 +9,16 @@ class TextEmbeddingServer(BaseServer):
         self.model_list = MODEL_LIST
 
     @Metric()
-    def generate(self, text: str, model_name: str) -> (str, str):
-        return self.pipeline_object.encode(text)
+    def generate(self, texts: str, search_text: str, model_name: str):
+        assert len(texts) > 0 or len(search_text) > 0, "texts or search_text is empty"
+
+        sentences = texts.split("\n")
+        texts_embeddings = self.pipeline_object.encode(sentences)
+
+        search_embedding = self.pipeline_object.encode(search_text)
+
+        scores = search_embedding @ texts_embeddings.T
+        return "\n".join(str(i) for i in scores[0])
 
 
 
