@@ -9,8 +9,8 @@ from modules.models.sequences.embedding.base_model import BaseModel
 class TransformerSentenceModel(BaseModel):
     def load_model(self, model_path: str):
         device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
-        model = AutoModel.from_pretrained(model_path)
+        tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+        model = AutoModel.from_pretrained(model_path, trust_remote_code=True, torch_dtype=torch.float16)
 
         model.eval()
         model.to(device)
