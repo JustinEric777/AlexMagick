@@ -13,9 +13,8 @@ class TextEmbeddingServer(BaseServer):
         assert len(texts) > 0 or len(search_text) > 0, "texts or search_text is empty"
 
         sentences = texts.split("\n")
-        texts_embeddings = self.pipeline_object.encode(sentences)
-
-        search_embedding = self.pipeline_object.encode(search_text)
+        texts_embeddings = self.pipeline_object.encode(sentences, model_name)
+        search_embedding = self.pipeline_object.encode(search_text, model_name)
 
         scores = search_embedding @ texts_embeddings.T
         return "\n".join(str(i) for i in scores[0])

@@ -1,5 +1,4 @@
 import torch
-from tqdm import tqdm
 from numpy import ndarray
 from typing import List, Union
 from transformers import AutoModel, AutoTokenizer
@@ -23,6 +22,7 @@ class TransformerSentenceModel(BaseModel):
     @torch.no_grad()
     def encode(self,
                sentences: Union[str, List[str]],
+               model_name: str = "",
                batch_size: int = 256,
                max_length: int = 512,
                normalize_to_unit: bool = True,
@@ -34,8 +34,7 @@ class TransformerSentenceModel(BaseModel):
             sentences = [sentences]
 
         embeddings_collection = []
-        for sentence_id in tqdm(range(0, len(sentences), batch_size), desc='Extract embeddings',
-                                disable=not enable_tqdm):
+        for sentence_id in range(0, len(sentences), batch_size):
             if isinstance(query_instruction, str) and len(query_instruction) > 0:
                 sentence_batch = [query_instruction + sent for sent in
                                   sentences[sentence_id:sentence_id + batch_size]]
@@ -47,7 +46,7 @@ class TransformerSentenceModel(BaseModel):
                 truncation=True,
                 max_length=max_length,
                 return_tensors="pt"
-            )
+            ).to(self.device)
             inputs_on_device = {k: v.to(self.device) for k, v in inputs.items()}
             outputs = self.model(**inputs_on_device, return_dict=True)
 
@@ -62,7 +61,7 @@ class TransformerSentenceModel(BaseModel):
                 raise NotImplementedError
 
             if normalize_to_unit:
-                embeddings = embeddings / embeddings.norm(dim=1, keepdim=True)
+                embeddings = torch.nn.functional.normalize(embeddings, dim=-1)
             embeddings_collection.append(embeddings.cpu())
 
         embeddings = torch.cat(embeddings_collection, dim=0)
