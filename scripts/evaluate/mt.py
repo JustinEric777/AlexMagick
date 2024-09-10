@@ -9,12 +9,12 @@ import sys
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, '../../')))
 from config.mt_config import MODEL_LIST
-from modules.mt.model_opus_mt import OpusMTModel
-from modules.mt.model_ali_csanmt import AliCSANMTModel
-from modules.mt.model_meta_mbart import MetaMBartModel
-from modules.mt.model_meta_m2m import MetaM2MModel
-from modules.mt.model_meta_nllb import MetaNLLBModel
-from modules.mt.model_google_t5 import GoogleT5Model
+from modules.models.sequences.mt.model_opus_mt import OpusMTModel
+from modules.models.sequences.mt.model_ali_csanmt import AliCSANMTModel
+from modules.models.sequences.mt.model_meta_mbart import MetaMBartModel
+from modules.models.sequences.mt.model_meta_m2m import MetaM2MModel
+from modules.models.sequences.mt.model_meta_nllb import MetaNLLBModel
+from modules.models.sequences.mt.model_google_t5 import GoogleT5Model
 
 def load_data():
     data_files = {

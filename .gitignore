@@ -5,3 +5,4 @@ test/*
 __pycache__
 */__pycache__
 scripts/*
+vector_store/*

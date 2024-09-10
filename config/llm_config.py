@@ -38,10 +38,8 @@ MODEL_LIST: Dict[str, Any] = {
             "model_provider_name": "LlamaCppModel",
             "model_path": "/data/models/llm/llama.cpp/llama3",
             "model_list": [
-                "Meta-Llama-3-8B-Instruct-F16.gguf",
                 "Meta-Llama-3-8B-Instruct-BF16.gguf",
                 "Meta-Llama-3-8B-Instruct-Q8_0.gguf",
-                "Meta-Llama-3.1-8B-Instruct-F16.gguf",
                 "Meta-Llama-3.1-8B-Instruct-BF16.gguf",
                 "Meta-Llama-3.1-8B-Instruct-Q8_0.gguf",
             ]

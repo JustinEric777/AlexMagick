@@ -23,7 +23,7 @@ class TransformerSentenceModel(BaseModel):
     def encode(self,
                sentences: Union[str, List[str]],
                model_name: str = "",
-               batch_size: int = 256,
+               batch_size: int = 32,
                max_length: int = 512,
                normalize_to_unit: bool = True,
                return_numpy: bool = True,

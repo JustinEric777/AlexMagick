@@ -9,9 +9,9 @@ MODEL_LIST: Dict[str, Any] = {
             "model_provider_name": "TransformerSentenceModel",
             "model_path": "/data/models/embeddings/seq",
             "model_list": [
-                "bge-large-zh-v1.5",
+                # "bge-large-zh-v1.5",
                 "bce-embedding-base_v1",
-                "360Zhinao-search",
+                # "360Zhinao-search",
                 "gte-multilingual-base",
             ]
         },

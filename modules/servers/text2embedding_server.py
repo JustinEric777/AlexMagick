@@ -1,8 +1,10 @@
+from typing import List
 from config.text_embedding_config import MODEL_LIST, TASK_TYPE
 from modules.servers.base_server import BaseServer, Metric
+from modules.vectorstores.embedding import Embeddings
 
 
-class TextEmbeddingServer(BaseServer):
+class TextEmbeddingServer(BaseServer, Embeddings):
     def __init__(self):
         super().__init__()
         self.task_type = TASK_TYPE
@@ -18,6 +20,13 @@ class TextEmbeddingServer(BaseServer):
 
         scores = search_embedding @ texts_embeddings.T
         return "\n".join(str(i) for i in scores[0])
+
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        return self.pipeline_object.encode(texts, self.model_name)
+
+    def embed_query(self, text: str) -> List[float]:
+        return self.pipeline_object.encode(text, self.model_name)
+
 
 
 
