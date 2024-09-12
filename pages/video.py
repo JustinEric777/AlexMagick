@@ -1,10 +1,14 @@
 import gradio as gr
-from pages.audios import asr
+from pages.videos import embedding
+
+
+def reload_default_model():
+    embedding.text2embedding.reload_model(default=True)
 
 
 def create_ui(params: dict):
     with gr.Tab("Video Models", id="video_tab") as video_tab:
         with gr.Tabs(selected=params["default_second_tab"]):
-            asr.create_ui(params)
+            embedding.create_ui(params)
 
-    video_tab.select(asr.reload_model)
+    video_tab.select(reload_default_model)
