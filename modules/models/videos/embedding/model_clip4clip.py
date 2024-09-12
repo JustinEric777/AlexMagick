@@ -78,11 +78,13 @@ class Clip4ClipModel(BaseModel):
         output = self.model(video)
         embedding = output["image_embeds"]
 
-        embedding = embedding / embedding.norm(dim=-1, keepdim=True)
-        embedding = torch.mean(embedding, dim=0)
-        embedding = embedding / embedding.norm(dim=-1, keepdim=True)
+        # embedding = embedding / embedding.norm(dim=-1, keepdim=True)
+        # embedding = torch.mean(embedding, dim=0)
+        # embedding = embedding / embedding.norm(dim=-1, keepdim=True)
 
-        # embedding = torch.nn.functional.normalize(embedding, dim=-1)
+        embedding = torch.nn.functional.normalize(embedding, dim=-1)
+        embedding = torch.mean(embedding, dim=0)
+        embedding = torch.nn.functional.normalize(embedding, dim=-1)
         embedding = embedding.numpy()
 
         return embedding
