@@ -25,7 +25,7 @@ class TextEmbeddingServer(BaseServer, Embeddings):
         return self.pipeline_object.encode(texts, self.model_name)
 
     def embed_query(self, text: str) -> List[float]:
-        return self.pipeline_object.encode(text, self.model_name)
+        return self.pipeline_object.encode(text, self.model_name)[0]
 
 
 
