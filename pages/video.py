@@ -1,9 +1,10 @@
 import gradio as gr
 from pages.videos import embedding
+from modules import video2embedding
 
 
 def reload_default_model():
-    embedding.text2embedding.reload_model(default=True)
+    video2embedding.reload_model(default=True)
 
 
 def create_ui(params: dict):

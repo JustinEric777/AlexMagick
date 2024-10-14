@@ -9,9 +9,10 @@ MODEL_LIST: Dict[str, Any] = {
             "model_provider_name": "LlamaTransformerModel",
             "model_path": "/data/models/llm/pytorch/llama3",
             "model_list": [
-                "Meta-Llama-3.1-8B-Instruct",
                 "Meta-Llama-3-8B-Instruct",
-                "Llama3-8B-Chinese-Chat",
+                "Meta-Llama-3.1-8B-Instruct",
+                "Llama-3.2-1B-Instruct",
+                "Llama-3.2-3B-Instruct",
             ]
         },
         "glm4": {
@@ -29,6 +30,15 @@ MODEL_LIST: Dict[str, Any] = {
             "model_path": "/data/models/llm/pytorch/minicpm",
             "model_list": [
                 "MiniCPM-V-2_6"
+            ]
+        },
+        "Qwen": {
+            "model_provider_path": "modules.models.sequences.llm.model_qwen_transformer",
+            "model_provider_name": "QwenTransformerModel",
+            "model_path": "/data/models/llm/pytorch/qwen",
+            "model_list": [
+                "Qwen2.5-1.5B-Instruct",
+                "Qwen2.5-3B-Instruct",
             ]
         }
     },

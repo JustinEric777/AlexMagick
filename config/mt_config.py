@@ -25,7 +25,8 @@ MODEL_LIST: Dict[str, Any] = {
             "model_provider_name": "MetaNLLBModel",
             "model_path": "/data/models/mt",
             "model_list": [
-                "opus-mt-en-zh"
+                "nllb-200-distilled-600M",
+                "nllb-200-distilled-600M-en-zh_CN"
             ]
         },
         "Google_T5": {
