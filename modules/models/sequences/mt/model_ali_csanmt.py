@@ -6,7 +6,7 @@ from modules.models.sequences.mt.base_model import BaseModel
 
 
 class AliCSANMTModel(BaseModel):
-    def load_model(self, model_path: str):
+    def load_model(self, model_path: str, device: str):
         model = Model.from_pretrained(model_path)
         processor = Preprocessor.from_pretrained(model_path)
         pipeline_mt = pipeline(task=Tasks.translation, model=model, preprocessor=processor)

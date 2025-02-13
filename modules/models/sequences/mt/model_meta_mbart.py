@@ -3,7 +3,7 @@ from modules.models.sequences.mt.base_model import BaseModel
 
 
 class MetaMBartModel(BaseModel):
-    def load_model(self, model_path: str):
+    def load_model(self, model_path: str, device: str):
         model = MBartForConditionalGeneration.from_pretrained(model_path)
         processor = MBart50TokenizerFast.from_pretrained(model_path)
 

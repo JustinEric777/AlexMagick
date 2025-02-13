@@ -8,7 +8,7 @@ class BaseModel(metaclass=abc.ABCMeta):
     streamer: Any = None
 
     @abc.abstractmethod
-    def load_model(self, model_path: str):
+    def load_model(self, model_path: str, device: str):
         pass
 
     @abc.abstractmethod

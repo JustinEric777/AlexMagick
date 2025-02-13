@@ -3,7 +3,7 @@ from modules.models.sequences.mt.base_model import BaseModel
 
 
 class MetaM2MModel(BaseModel):
-    def load_model(self, model_path: str):
+    def load_model(self, model_path: str, device: str):
         model = M2M100ForConditionalGeneration.from_pretrained(model_path)
         processor = M2M100Tokenizer.from_pretrained(model_path)
 

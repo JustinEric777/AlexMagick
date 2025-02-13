@@ -5,7 +5,7 @@ from modules.models.images.text2img.base_model import BaseModel
 
 
 class ModelStableDiffusion(BaseModel):
-    def load_model(self, model_path: str):
+    def load_model(self, model_path: str, device: str):
         device = "cuda:0" if torch.cuda.is_available() else "cpu"
         dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 

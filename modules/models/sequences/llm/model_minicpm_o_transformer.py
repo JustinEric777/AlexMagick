@@ -1,29 +1,29 @@
 import time
-import torch
 from threading import Thread
-from transformers import AutoModelForCausalLM, AutoTokenizer, TextIteratorStreamer
+import torch
+from transformers import AutoModel, AutoTokenizer, TextIteratorStreamer
 from modules.models.sequences.llm.base_model import BaseModel
 
 
-class QwenTransformerModel(BaseModel):
+class MiniCPMOTransformerModel(BaseModel):
     def load_model(self, model_path: str, device: str):
         tokenizer = AutoTokenizer.from_pretrained(
             model_path,
             trust_remote_code=True
         )
-        model = AutoModelForCausalLM.from_pretrained(
+        model = AutoModel.from_pretrained(
             model_path,
-            device_map="cpu",
+            trust_remote_code=True,
+            attn_implementation='sdpa',
             torch_dtype=torch.bfloat16,
-            low_cpu_mem_usage=True,
-            trust_remote_code=True
+            # o_2_6
+            init_vision=True,
+            init_audio=True,
+            init_tts=True
         )
-
-        streamer = TextIteratorStreamer(
-            tokenizer,
-            skip_prompt=True,
-            skip_special_tokens=True
-        )
+        model.eval()
+        streamer = TextIteratorStreamer(tokenizer,
+                                        skip_prompt=True)
 
         self.model = model
         self.tokenizer = tokenizer
@@ -35,40 +35,29 @@ class QwenTransformerModel(BaseModel):
                 """
 
     def chat(self, history, max_tokens, temperature, top_p, slider_context_times):
-        messages = [
-            {"role": "system", "content": "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."}
-        ]
-
+        messages = []
         history_true = history[1:-1]
         if slider_context_times > 0:
             for one_chat in history_true[-slider_context_times:]:
-                one_message_user = {"role": "user", "content": one_chat[0].replace('<br>', '\n')}
+                one_message_user = {"role": "user", "content": [one_chat[0].replace('<br>', '\n')]}
                 messages.append(one_message_user)
-                one_message_system = {"role": "assistant", "content": one_chat[1].replace('<br>', '\n')}
+                one_message_system = {"role": "assistant", "content": [one_chat[1].replace('<br>', '\n')]}
                 messages.append(one_message_system)
 
-        input_message = {"role": "user", "content": self.generate_prompt(history[-1][0].replace('<br>', '\n'))}
+        input_message = {"role": "user", "content": [self.generate_prompt(history[-1][0].replace('<br>', '\n'))]}
         messages.append(input_message)
 
-        text = self.tokenizer.apply_chat_template(
-            messages,
-            tokenize=False,
-            add_generation_prompt=True,
-            return_tensors="pt"
-        )
-
-        input_ids = self.tokenizer(
-            [text],
-            return_tensors="pt"
-        ).to(self.model.device)
-
         generate_input = {
-            **input_ids,
+            "tokenizer": self.tokenizer,
+            "image": None,
+            "msgs": messages,
+            "sampling": True,
+            "stream": True,
+            "top_k": 50,
+            "top_p": top_p,
             "max_new_tokens": max_tokens,
-            # "top_k": 50,
-            # "top_p": top_p,
             "streamer": self.streamer,
-            # "temperature": temperature,
+            "temperature": temperature,
         }
 
         thread = Thread(target=self.model.generate, kwargs=generate_input)
@@ -77,19 +66,16 @@ class QwenTransformerModel(BaseModel):
         generated_tokens = []
         start_time = time.time()
         bot_message = ''
-        cost_time, words_count, single_word_cost_time, per_second_tokens = 0, 0, 0, 0
+        cost_time, words_count, single_word_cost_time = 0, 0, 0
         print('[Transformer] Human:', history[-1][0])
         print('[Transformer] Assistant: ', end='', flush=True)
         for new_text in self.streamer:
             print(new_text, end='', flush=True)
-            if len(new_text) == 0:
-                continue
+            bot_message += new_text
 
             # 计算生成token 速率
             token_ids = self.tokenizer.encode(new_text, add_special_tokens=False)
             generated_tokens.extend(token_ids)
-
-            bot_message += new_text
 
             end_time = time.time()
             cost_time = round(end_time-start_time, 3)
@@ -97,8 +83,7 @@ class QwenTransformerModel(BaseModel):
             single_word_cost_time = round((end_time-start_time)/len(bot_message), 3)
             per_second_tokens = round(len(generated_tokens) / (end_time-start_time), 3)
 
-            yield bot_message, cost_time, words_count, single_word_cost_time, per_second_tokens
-
+        yield bot_message, cost_time, words_count, single_word_cost_time, per_second_tokens
 
 
 

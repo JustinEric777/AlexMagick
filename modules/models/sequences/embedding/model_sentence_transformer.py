@@ -7,7 +7,7 @@ from modules.models.sequences.embedding.base_model import BaseModel
 
 
 class SentenceTransformerModel(BaseModel):
-    def load_model(self, model_path: str):
+    def load_model(self, model_path: str, device: str):
         device = "cuda" if torch.cuda.is_available() else "cpu"
         model = SentenceTransformer(model_path, device=device, trust_remote_code=True)
 

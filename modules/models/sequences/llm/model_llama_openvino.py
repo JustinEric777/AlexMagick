@@ -6,14 +6,15 @@ from optimum.intel.openvino import OVModelForCausalLM
 
 
 class LlamaOpenvinoModel(BaseModel):
-    def load_model(self, model_path: str):
+    def load_model(self, model_path: str, device: str):
+        print(model_path)
         model = OVModelForCausalLM.from_pretrained(
             model_path,
-            use_cache=False,
-            local_files_only=True
+            use_cache=True,
+            export=False
         )
 
-        tokenizer = AutoTokenizer.from_pretrained(model_path, use_cache=False)
+        tokenizer = AutoTokenizer.from_pretrained(model_path)
         streamer = TextIteratorStreamer(tokenizer,
                                         skip_prompt=True)
 
@@ -69,15 +70,21 @@ class LlamaOpenvinoModel(BaseModel):
         thread = Thread(target=self.model.generate, kwargs=generate_input)
         thread.start()
 
+        generated_tokens = []
         start_time = time.time()
         bot_message = ''
-        cost_time, words_count, single_word_cost_time = 0, 0, 0
+        cost_time, words_count, single_word_cost_time, per_second_tokens = 0, 0, 0, 0
         print('[OpenVino] Human:', history[-1][0])
         print('[OpenVino] Assistant: ', end='', flush=True)
         for new_text in self.streamer:
             print(new_text, end='', flush=True)
             if len(new_text) == 0:
                 continue
+
+            # 计算生成token 速率
+            token_ids = self.tokenizer.encode(new_text, add_special_tokens=False)
+            generated_tokens.extend(token_ids)
+
             if new_text != '<|eot_id|>':
                 bot_message += new_text
             if "<|eot_id|>" in bot_message or "<|end_of_text|>" in bot_message:
@@ -88,5 +95,6 @@ class LlamaOpenvinoModel(BaseModel):
                 cost_time = round(end_time-start_time, 3)
                 words_count = len(bot_message)
                 single_word_cost_time = round((end_time-start_time)/len(bot_message), 3)
+                per_second_tokens = round(len(generated_tokens) / (end_time-start_time), 3)
 
-            yield bot_message, cost_time, words_count, single_word_cost_time
+            yield bot_message, cost_time, words_count, single_word_cost_time, per_second_tokens

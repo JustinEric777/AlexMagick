@@ -49,7 +49,7 @@ def video2image(video_path, frame_rate=1.0, size=224):
 
 
 class Clip4ClipModel(BaseModel):
-    def load_model(self, model_path: str):
+    def load_model(self, model_path: str, device: str):
         device = "cuda" if torch.cuda.is_available() else "cpu"
         model = CLIPTextModelWithProjection.from_pretrained(model_path)
         tokenizer = CLIPTokenizer.from_pretrained(model_path)

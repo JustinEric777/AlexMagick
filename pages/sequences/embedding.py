@@ -42,7 +42,7 @@ how to implement quick sort in python?
                         wrap=True
                     )
             with gr.Column(scale=1):
-                infer_arch, model_name, model_version = reload_model_ui(text2embedding, args)
+                infer_arch, device, model_name, model_version = reload_model_ui(text2embedding, args)
 
         def update_results(input_texts, search_text, search_results, metric_value):
             items = results.value["data"]
@@ -59,5 +59,5 @@ how to implement quick sort in python?
 
         clear.click(lambda: "", None, [text_inputs, search_input, search_result], queue=False)
 
-    mt_tab.select(text2embedding.reload_model, [infer_arch, model_name, model_version], [infer_arch, model_name, model_version])
+    mt_tab.select(text2embedding.reload_model, [infer_arch, device, model_name, model_version], [infer_arch, device, model_name, model_version])
 

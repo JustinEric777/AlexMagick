@@ -25,7 +25,7 @@ def create_ui(args: dict):
                         wrap=True
                     )
             with gr.Column(scale=1):
-                infer_arch, model_name, model_version = reload_model_ui(mt, args)
+                infer_arch, device, model_name, model_version = reload_model_ui(mt, args)
 
         def update_results(original_text, translated_text, metric_value):
             items = results.value["data"]
@@ -42,5 +42,5 @@ def create_ui(args: dict):
 
         clear.click(lambda: "", None, [text_input, text_output], queue=False)
 
-    mt_tab.select(mt.reload_model, [infer_arch, model_name, model_version], [infer_arch, model_name, model_version])
+    mt_tab.select(mt.reload_model, [infer_arch, device, model_name, model_version], [infer_arch, device, model_name, model_version])
 

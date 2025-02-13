@@ -29,7 +29,7 @@ def sample_frame_indices(clip_len, frame_sample_rate, seg_len):
 
 
 class XClipModel(BaseModel):
-    def load_model(self, model_path: str):
+    def load_model(self, model_path: str, device: str):
         device = "cuda" if torch.cuda.is_available() else "cpu"
         processor = AutoProcessor.from_pretrained(model_path)
         model = AutoModel.from_pretrained(model_path)

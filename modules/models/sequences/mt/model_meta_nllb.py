@@ -3,7 +3,7 @@ from modules.models.sequences.mt.base_model import BaseModel
 
 
 class MetaNLLBModel(BaseModel):
-    def load_model(self, model_path: str):
+    def load_model(self, model_path: str, device: str):
         model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
         processor = AutoTokenizer.from_pretrained(model_path)
 

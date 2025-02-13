@@ -1,11 +1,11 @@
 import gradio as gr
 
-HOST_PREFIX = "http://10.172.10.83:7860/file="
+HOST_PREFIX = "http://10.172.10.154:7860/file="
 
 
 def reload_model_ui(obj, args: dict):
-    def reload_model(arch: str, model: str, version: str):
-        return obj.reload_model(arch, model, version)
+    def reload_model(arch: str, device: str, model: str, version: str):
+        return obj.reload_model(arch, device, model, version)
 
     def update_model_list(arch: str, model: str):
         model_list = obj.get_model_list(arch, model)
@@ -17,16 +17,27 @@ def reload_model_ui(obj, args: dict):
             interactive=True
         )
 
+    def update_device(arch: str):
+        device_list = obj.get_arch_device_list(arch)
+        return gr.Dropdown(
+            label="device",
+            info="please choose model infer device",
+            choices=device_list,
+            value=device_list[0] if len(device_list) > 0 else "",
+            interactive=True
+        )
+
     def update_arch_model_list(arch: str):
         arch_model_list = obj.get_arch_model_list(arch)
+        device_list = update_device(arch)
         model_list = update_model_list(arch, arch_model_list[0] if len(arch_model_list) > 0 else "")
 
-        return gr.Dropdown(
+        return device_list, gr.Dropdown(
             label="model name",
             info="please choose model name...",
             choices=arch_model_list,
             value=arch_model_list[0] if len(arch_model_list) > 0 else "",
-            interactive=False
+            interactive=True
         ), model_list
 
     with gr.Row():
@@ -36,6 +47,13 @@ def reload_model_ui(obj, args: dict):
                 info="please choose a arch for inference",
                 choices=obj.get_infer_arch_list(),
                 value=args["infer_arch"] if args["infer_arch"] in obj.get_infer_arch_list() else obj.get_infer_arch_list()[0],
+                interactive=True
+            )
+            device = gr.Dropdown(
+                label="infer device",
+                info="please choose model infer device",
+                choices=obj.get_arch_device_list(infer_arch.value),
+                value=args["device"] if args["device"] in obj.get_arch_device_list(infer_arch.value) else obj.get_arch_device_list(infer_arch.value)[0],
                 interactive=True
             )
             model_name = gr.Dropdown(
@@ -55,9 +73,9 @@ def reload_model_ui(obj, args: dict):
     with gr.Row():
         model_reload = gr.Button("Reload Model ...", variant="primary")
 
-    infer_arch.change(update_arch_model_list, [infer_arch], [model_name, model_version])
+    infer_arch.change(update_arch_model_list, [infer_arch], [device, model_name, model_version])
     model_name.change(update_model_list, [infer_arch, model_name], [model_version])
-    model_reload.click(reload_model, [infer_arch, model_name, model_version], [infer_arch, model_name, model_version], show_progress="full")
+    model_reload.click(reload_model, [infer_arch, device, model_name, model_version], [infer_arch, device, model_name, model_version], show_progress="full")
 
-    return infer_arch, model_name, model_version
+    return infer_arch, device, model_name, model_version
 

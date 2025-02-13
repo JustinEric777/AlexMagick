@@ -3,7 +3,7 @@ from modules.models.audios.ast.base_model import BaseModel
 
 
 class MetaS2TModel(BaseModel):
-    def load_model(self, model_path: str):
+    def load_model(self, model_path: str, device: str):
         model = Speech2TextForConditionalGeneration.from_pretrained(model_path)
         processor = Speech2TextProcessor.from_pretrained(model_path)
 

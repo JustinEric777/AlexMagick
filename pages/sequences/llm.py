@@ -29,7 +29,7 @@ def create_ui(args: dict):
                     re_generate = gr.Button("Regenerate")
                     sent_bt = gr.Button("Send", variant="primary")
             with gr.Column(scale=1):
-                infer_arch, model_name, model_version = reload_model_ui(llm, args)
+                infer_arch, device, model_name, model_version = reload_model_ui(llm, args)
                 with gr.Row():
                     with gr.Accordion("generate params", open=True):
                         max_tokens = gr.Slider(minimum=512, maximum=4096, label="max_tokens", value=2048)
@@ -43,18 +43,21 @@ def create_ui(args: dict):
         msg.submit(user, [msg, chatbot], [msg, chatbot], queue=True).then(
             llm.generate,
             [chatbot, max_tokens, slider_temp, slider_top_p, slider_context_times],
-            chatbot
+            chatbot,
+            queue=True
         )
         sent_bt.click(user, [msg, chatbot], [msg, chatbot], queue=True).then(
             llm.generate,
             [chatbot, max_tokens, slider_temp, slider_top_p, slider_context_times],
-            chatbot
+            chatbot,
+            queue=True
         )
         re_generate.click(
             llm.generate,
             [chatbot, max_tokens, slider_temp, slider_top_p, slider_context_times],
-            chatbot
+            chatbot,
+            queue=True
         )
         clear.click(lambda: [], None, chatbot, queue=True)
 
-    llm_tab.select(llm.reload_model, [infer_arch, model_name, model_version], [infer_arch, model_name, model_version])
+    llm_tab.select(llm.reload_model, [infer_arch, device, model_name, model_version], [infer_arch, device, model_name, model_version])

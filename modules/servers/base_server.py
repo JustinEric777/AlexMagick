@@ -49,6 +49,7 @@ class Metric:
 class BaseServer(abc.ABC):
     task_type: str = ""
     infer_arch: str = ""
+    infer_device: str = ""
     model_name: str = ""
     model_version_name: str = ""
     pipeline_object: Any = None
@@ -57,7 +58,13 @@ class BaseServer(abc.ABC):
     def __init__(self):
         pass
 
-    def __load_model(self, task_type: Optional[str] = None, infer_arch: Optional[str] = None, model_name: Optional[str] = None, model_version: Optional[str] = None):
+    def __load_model(
+            self,
+            task_type: Optional[str] = None,
+            infer_arch: Optional[str] = None,
+            device: Optional[str] = None,
+            model_name: Optional[str] = None,
+            model_version: Optional[str] = None):
         if task_type != self.task_type:
             return
 
@@ -71,14 +78,15 @@ class BaseServer(abc.ABC):
 
         model_class_name = getattr(importlib.import_module(model_provider_path), model_provider_name)
         pipeline_object = model_class_name()
-        pipeline_object.load_model(model_path)
+        pipeline_object.load_model(model_path, device)
 
         self.pipeline_object = pipeline_object
         self.infer_arch = infer_arch
+        self.device = device
         self.model_name = model_name
         self.model_version_name = model_version
 
-        return infer_arch, model_name, model_version
+        return infer_arch, device, model_name, model_version
 
     def init_model(self, params: dict):
         if "task_type" not in params:
@@ -89,12 +97,15 @@ class BaseServer(abc.ABC):
             raise Exception("param model_name is empty")
         if "model_version" not in params:
             raise Exception("param model_version is empty")
-        self.__load_model(params["task_type"], params["infer_arch"], params["model_name"], params["model_version"])
+        self.__load_model(params["task_type"], params["infer_arch"], params["device"], params["model_name"], params["model_version"])
 
-    def reload_model(self, infer_arch: Optional[str] = None, model_name: Optional[str] = None, model_version: Optional[str] = None, default: bool = False):
+    def reload_model(self, infer_arch: Optional[str] = None,  device: Optional[str] = None, model_name: Optional[str] = None, model_version: Optional[str] = None, default: bool = False):
         if default:
             arch_list = self.get_infer_arch_list()
             infer_arch = arch_list[0] if len(arch_list) > 0 else ""
+
+            device_list = self.get_arch_device_list(infer_arch)
+            device = device_list[0] if len(device_list) > 0 else ""
 
             model_name_list = self.get_arch_model_list(infer_arch)
             model_name = model_name_list[0] if len(model_name_list) > 0 else ""
@@ -102,7 +113,7 @@ class BaseServer(abc.ABC):
             model_version_list = self.get_model_list(infer_arch, model_name)
             model_version = model_version_list[0] if len(model_version_list) > 0 else ""
 
-        return self.__load_model(self.task_type, infer_arch, model_name, model_version)
+        return self.__load_model(self.task_type, infer_arch, device, model_name, model_version)
 
     def get_infer_arch_list(self):
         return [key for key in self.model_list]
@@ -112,6 +123,15 @@ class BaseServer(abc.ABC):
             return []
 
         return [key for key in self.model_list[infer_arch]]
+
+    def get_arch_device_list(self, infer_arch: Optional[str] = None):
+        if infer_arch not in self.model_list:
+            return []
+
+        if infer_arch == "OpenVino":
+            return ["CPU", "GPU", "NPU", "AUTO"]
+
+        return ["CPU"]
 
     def get_model_list(self, infer_arch: Optional[str] = None, model_name: Optional[str] = None):
         if infer_arch not in self.model_list:

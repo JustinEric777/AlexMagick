@@ -7,7 +7,7 @@ from transformers import AutoTokenizer
 
 
 class LlamaIpexLLMModel(BaseModel):
-    def load_model(self, model_path: str):
+    def load_model(self, model_path: str, device: str):
         model = AutoModelForCausalLM.from_pretrained(model_path,
                                                      device_map="auto",
                                                      torch_dtype=torch.bfloat16,

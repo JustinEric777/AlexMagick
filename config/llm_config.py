@@ -4,6 +4,16 @@ TASK_TYPE = "sequence-llm"
 
 MODEL_LIST: Dict[str, Any] = {
     "Pytorch": {
+        "DeepSeek": {
+            "model_provider_path": "modules.models.sequences.llm.model_deepseek_transformer",
+            "model_provider_name": "DeepSeekTransformerModel",
+            "model_path": "/data/models/llm/pytorch/deepseek",
+            "model_list": [
+                "DeepSeek-R1-Distill-Llama-8B",
+                "DeepSeek-R1-Distill-Qwen-7B",
+                "DeepSeek-R1-Distill-Qwen-1.5B",
+            ]
+        },
         "llama3": {
             "model_provider_path": "modules.models.sequences.llm.model_llama_transformer",
             "model_provider_name": "LlamaTransformerModel",
@@ -29,7 +39,15 @@ MODEL_LIST: Dict[str, Any] = {
             "model_provider_name": "MiniCPMTransformerModel",
             "model_path": "/data/models/llm/pytorch/minicpm",
             "model_list": [
-                "MiniCPM-V-2_6"
+                "MiniCPM-V-2_6",
+            ]
+        },
+        "minicpm-o-2.6": {
+            "model_provider_path": "modules.models.sequences.llm.model_minicpm_o_transformer",
+            "model_provider_name": "MiniCPMOTransformerModel",
+            "model_path": "/data/models/llm/pytorch/minicpm",
+            "model_list": [
+                "MiniCPM-o-2_6",
             ]
         },
         "Qwen": {
@@ -43,6 +61,21 @@ MODEL_LIST: Dict[str, Any] = {
         }
     },
     "llama.cpp": {
+        "DeepSeek": {
+            "model_provider_path": "modules.models.sequences.llm.model_deepseek_llama_cpp",
+            "model_provider_name": "DeepSeekLlamaCppModel",
+            "model_path": "/data/models/llm/llama.cpp/deepseek",
+            "model_list": [
+                "DeepSeek-R1-Distill-Qwen-14B-GGUF/DeepSeek-R1-Distill-Qwen-14B-Q8_0.gguf",
+                "DeepSeek-R1-Distill-Qwen-14B-GGUF/DeepSeek-R1-Distill-Qwen-14B-Q4_1.gguf",
+                "DeepSeek-R1-Distill-Qwen-7B-GGUF/DeepSeek-R1-Distill-Qwen-7B-f16.gguf",
+                "DeepSeek-R1-Distill-Qwen-7B-GGUF/DeepSeek-R1-Distill-Qwen-7B-Q8_0.gguf",
+                "DeepSeek-R1-Distill-Qwen-7B-GGUF/DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf",
+                "DeepSeek-R1-Distill-Qwen-1.5B-GGUF/DeepSeek-R1-Distill-Qwen-1.5B-f16.gguf",
+                "DeepSeek-R1-Distill-Qwen-1.5B-GGUF/DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf",
+                "DeepSeek-R1-Distill-Qwen-1.5B-GGUF/DeepSeek-R1-Distill-Qwen-1.5B-Q4_0.gguf",
+            ]
+        },
         "llama3": {
             "model_provider_path": "modules.models.sequences.llm.model_llama_cpp",
             "model_provider_name": "LlamaCppModel",
@@ -53,17 +86,32 @@ MODEL_LIST: Dict[str, Any] = {
                 "Meta-Llama-3.1-8B-Instruct-BF16.gguf",
                 "Meta-Llama-3.1-8B-Instruct-Q8_0.gguf",
             ]
-        }
+        },
     },
     "OpenVino": {
+        "deepseek": {
+            "model_provider_path": "modules.models.sequences.llm.model_deepseek_openvino",
+            "model_provider_name": "DeepSeekOpenvinoModel",
+            "model_path": "/data/models/llm/openvino/deepseek",
+            "model_list": [
+                "DeepSeek-R1-Distill-Llama-8B-openvino-int8",
+                "DeepSeek-R1-Distill-Llama-8B-openvino-int4",
+                "DeepSeek-R1-Distill-Qwen-7B-openvino-int8",
+                "DeepSeek-R1-Distill-Qwen-7B-openvino-int4",
+                "DeepSeek-R1-Distill-Qwen-1.5B-openvino-int8",
+                # "DeepSeek-R1-Distill-Llama-8B_GPTQ-openvino-int4",
+                # "DeepSeek-R1-Distill-Qwen-7B-sym-int4",
+            ]
+        },
         "llama3": {
             "model_provider_path": "modules.models.sequences.llm.model_llama_openvino",
             "model_provider_name": "LlamaOpenvinoModel",
             "model_path": "/data/models/llm/openvino/llama3",
             "model_list": [
-                "Meta-Llama-3.1-8B-Instruct-Openvino-fp16",
+                # "Meta-Llama-3.1-8B-Instruct-Openvino-fp16",
+                "llama-3-8b-instruct-ov-int8",
             ]
-        }
+        },
     },
     "ONNX": {
         "llama3": {

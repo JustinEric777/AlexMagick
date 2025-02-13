@@ -3,7 +3,7 @@ from modules.models.sequences.mt.base_model import BaseModel
 
 
 class GoogleT5Model(BaseModel):
-    def load_model(self, model_path: str):
+    def load_model(self, model_path: str, device: str):
         model = T5ForConditionalGeneration.from_pretrained(model_path)
         processor = T5Tokenizer.from_pretrained(model_path)
 

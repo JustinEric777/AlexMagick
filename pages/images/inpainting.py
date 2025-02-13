@@ -72,7 +72,7 @@ def create_ui(args: dict):
 
             with gr.Column(scale=1):
                 with gr.Row():
-                    infer_arch, model_name, model_version = reload_model_ui(inpainting, args)
+                    infer_arch, device, model_name, model_version = reload_model_ui(inpainting, args)
                 with gr.Row():
                     with gr.Accordion("model params", open=True):
                         seed = gr.Slider(
@@ -131,5 +131,5 @@ def create_ui(args: dict):
         )
         clear.click(lambda: None, None, [positive_prompt, positive_prompt, image_output, results], queue=False)
 
-    image_inpainting_tab.select(inpainting.reload_model, [infer_arch, model_name, model_version], [infer_arch, model_name, model_version])
+    image_inpainting_tab.select(inpainting.reload_model, [infer_arch, device, model_name, model_version], [infer_arch, device, model_name, model_version])
 

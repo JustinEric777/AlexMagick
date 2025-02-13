@@ -1,41 +1,35 @@
 import time
-import torch
 from threading import Thread
-from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
 from modules.models.sequences.llm.base_model import BaseModel
+from transformers import AutoTokenizer, TextIteratorStreamer
+from optimum.intel import OVModelForCausalLM, OVWeightQuantizationConfig
 
 
-class LlamaTransformerModel(BaseModel):
+class DeepSeekOpenvinoModel(BaseModel):
     def load_model(self, model_path: str, device: str):
-        tokenizer = AutoTokenizer.from_pretrained(
+        model = OVModelForCausalLM.from_pretrained(
             model_path,
-            trust_remote_code=True
-        )
-        model = AutoModelForCausalLM.from_pretrained(
-            model_path,
-            device_map="cpu",
-            torch_dtype=torch.bfloat16,
-            low_cpu_mem_usage=True,
-            trust_remote_code=True
+            use_cache=True,
+            device=device,
+            export=False,
+            version="opset8"
         )
 
-        model.eval()
+        tokenizer = AutoTokenizer.from_pretrained(model_path, use_cache=False)
         streamer = TextIteratorStreamer(tokenizer,
                                         skip_prompt=True)
+
         self.model = model
-        self.tokenizer = tokenizer
         self.streamer = streamer
+        self.tokenizer = tokenizer
 
     def generate_prompt(self, instruction: str):
         return f"""
-                请用中文回答以下问题：
                 {instruction}
                 """
 
     def chat(self, history, max_tokens, temperature, top_p, slider_context_times):
-        messages = [
-            {"role": "system", "content": ""}
-        ]
+        messages = []
 
         history_true = history[1:-1]
         if slider_context_times > 0:
@@ -56,7 +50,7 @@ class LlamaTransformerModel(BaseModel):
 
         terminators = [
             self.tokenizer.eos_token_id,
-            self.tokenizer.convert_tokens_to_ids("<|eot_id|>")
+            self.tokenizer.convert_tokens_to_ids("<｜end▁of▁sentence｜>")
         ]
 
         generate_input = {
@@ -68,7 +62,7 @@ class LlamaTransformerModel(BaseModel):
             "streamer": self.streamer,
             "temperature": temperature,
             "eos_token_id": terminators,
-            "pad_token_id":  self.tokenizer.eos_token_id,
+            "pad_token_id":  self.tokenizer.eos_token_id
         }
 
         thread = Thread(target=self.model.generate, kwargs=generate_input)
@@ -78,8 +72,8 @@ class LlamaTransformerModel(BaseModel):
         start_time = time.time()
         bot_message = ''
         cost_time, words_count, single_word_cost_time, per_second_tokens = 0, 0, 0, 0
-        print('[Transformer] Human:', history[-1][0])
-        print('[Transformer] Assistant: ', end='', flush=True)
+        print('[OpenVino] Human:', history[-1][0])
+        print('[OpenVino] Assistant: ', end='', flush=True)
         for new_text in self.streamer:
             print(new_text, end='', flush=True)
             if len(new_text) == 0:
@@ -89,20 +83,23 @@ class LlamaTransformerModel(BaseModel):
             token_ids = self.tokenizer.encode(new_text, add_special_tokens=False)
             generated_tokens.extend(token_ids)
 
-            if new_text != '<|eot_id|>':
+            if "<think>" in new_text:
+                new_text = "<span style='color: blue'>【深度思考】：</span> <br> <blockquote>"
+            if "</think>" in new_text:
+                new_text = "</blockquote> <span style='color: green'>【推理结果】：</span> <br>"
+
+            if new_text != '<｜end▁of▁sentence｜>':
                 bot_message += new_text
-            if "<|eot_id|>" in bot_message or "<|end_of_text|>" in bot_message:
-                bot_message = bot_message.replace('<|eot_id|>', '')
-                bot_message = bot_message.replace('<|end_of_text|>', '')
+            if "<｜end▁of▁sentence｜>" in bot_message or "<｜end▁of▁sentence｜>" in bot_message:
+                bot_message = bot_message.replace('<｜end▁of▁sentence｜>', '')
                 end_time = time.time()
 
+                trim_message = bot_message.replace("<span style='color: blue'>【深度思考】：</span> <br> <blockquote>", "")
+                trim_message = trim_message.replace("</blockquote> <span style='color: green'>【推理结果】：</span> <br>", "").strip()
+
                 cost_time = round(end_time-start_time, 3)
-                words_count = len(bot_message)
-                single_word_cost_time = round((end_time-start_time)/len(bot_message), 3)
+                words_count = len(trim_message)
+                single_word_cost_time = round((end_time-start_time)/len(trim_message), 3)
                 per_second_tokens = round(len(generated_tokens) / (end_time-start_time), 3)
 
-            yield bot_message, cost_time, words_count, single_word_cost_time, per_second_tokens
-
-
-
-
+        yield bot_message, cost_time, words_count, single_word_cost_time, per_second_tokens
