@@ -10,7 +10,7 @@ class MtServer(BaseServer):
 
     @Metric()
     def generate(self, text: str, model_name: str) -> (str, str):
-        return self.pipeline_object.translate(text)
+        return self.pipeline.translate(text)
 
 
 

@@ -1,6 +1,7 @@
 import gradio as gr
 
-HOST_PREFIX = "http://10.172.10.154:7860/file="
+HOST_PREFIX = "http://10.172.10.75:7860/file="
+GENERATE_TTS_AUDIO_PATH = "storage/tts"
 
 
 def reload_model_ui(obj, args: dict):

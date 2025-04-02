@@ -71,8 +71,7 @@ def create_ui(args: dict):
                         )
 
             with gr.Column(scale=1):
-                with gr.Row():
-                    infer_arch, device, model_name, model_version = reload_model_ui(inpainting, args)
+                infer_arch, device, model_name, model_version = reload_model_ui(inpainting, args)
                 with gr.Row():
                     with gr.Accordion("model params", open=True):
                         seed = gr.Slider(
@@ -83,36 +82,34 @@ def create_ui(args: dict):
                             value=0,
                         )
                         randomize_seed = gr.Checkbox(label="Randomize seed", value=True)
-                        with gr.Row():
-                            width = gr.Slider(
-                                label="Width",
-                                minimum=256,
-                                maximum=MAX_IMAGE_SIZE,
-                                step=64,
-                                value=1024,
-                            )
-                            height = gr.Slider(
-                                label="Height",
-                                minimum=256,
-                                maximum=MAX_IMAGE_SIZE,
-                                step=64,
-                                value=1024,
-                            )
-                        with gr.Row():
-                            guidance_scale = gr.Slider(
-                                label="Guidance scale",
-                                minimum=0.0,
-                                maximum=10.0,
-                                step=0.1,
-                                value=5.0,
-                            )
-                            num_inference_steps = gr.Slider(
-                                label="Number of inference steps",
-                                minimum=1,
-                                maximum=50,
-                                step=1,
-                                value=20,
-                            )
+                        width = gr.Slider(
+                            label="Width",
+                            minimum=256,
+                            maximum=MAX_IMAGE_SIZE,
+                            step=64,
+                            value=1024,
+                        )
+                        height = gr.Slider(
+                            label="Height",
+                            minimum=256,
+                            maximum=MAX_IMAGE_SIZE,
+                            step=64,
+                            value=1024,
+                        )
+                        guidance_scale = gr.Slider(
+                            label="Guidance scale",
+                            minimum=0.0,
+                            maximum=10.0,
+                            step=0.1,
+                            value=5.0,
+                        )
+                        num_inference_steps = gr.Slider(
+                            label="Number of inference steps",
+                            minimum=1,
+                            maximum=50,
+                            step=1,
+                            value=20,
+                        )
 
         def update_results(image_input_value, image_mask_value, positive_prompt_value, negative_prompt_value, result_image_value, metric_value):
             items = results.value["data"]

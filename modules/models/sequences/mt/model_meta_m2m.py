@@ -21,5 +21,9 @@ class MetaM2MModel(BaseModel):
 
         return outputs[0]
 
+    def release(self):
+        del self.model
+        del self.processor
+
 
 

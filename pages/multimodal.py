@@ -1,16 +1,15 @@
 import gradio as gr
-from pages.images import text2img, img2img, inpainting
+from pages.multimodals import multimodal_llm
 
 
 def reload_default_model():
-    text2img.text2img.reload_model(default=True)
+    multimodal_llm.multimodal_llm.reload_model(default=True)
 
 
 def create_ui(params: dict):
-    with gr.Tab("MultiModal Models", id="multimodal_tab") as image_tab:
-        with gr.Tabs(selected=params["default_second_tab"]):
-            text2img.create_ui(params)
-            img2img.create_ui(params)
-            inpainting.create_ui(params)
+    with gr.Tab("MultiModal Models", id="multimodal_tab") as multimodal_tab:
+        select_tab = params["default_second_tab"] if params["default_first_tab"] == multimodal_tab else None
+        with gr.Tabs(selected=select_tab):
+            multimodal_llm.create_ui(params)
 
-    image_tab.select(reload_default_model)
+    multimodal_tab.select(reload_default_model)

@@ -33,5 +33,8 @@ class ModelStableDiffusion(BaseModel):
 
         return image
 
+    def release(self):
+        del self.pipline
+
 
 

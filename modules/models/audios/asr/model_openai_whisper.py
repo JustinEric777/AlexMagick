@@ -52,4 +52,8 @@ class OpenAIWhisperModel(BaseModel):
 
         return predict_text[0]
 
+    def release(self):
+        del self.model
+        del self.processor
+
 

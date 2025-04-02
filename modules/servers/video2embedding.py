@@ -15,17 +15,17 @@ class VideoEmbeddingServer(BaseServer, Embeddings):
         assert len(texts) > 0 or len(search_text) > 0, "texts or search_text is empty"
 
         sentences = texts.split("\n")
-        texts_embeddings = self.pipeline_object.encode(sentences, model_name)
-        search_embedding = self.pipeline_object.encode(search_text, model_name)
+        texts_embeddings = self.pipeline.encode(sentences, model_name)
+        search_embedding = self.pipeline.encode(search_text, model_name)
 
         scores = search_embedding @ texts_embeddings.T
         return "\n".join(str(i) for i in scores[0])
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
-        return self.pipeline_object.encode(texts, self.model_name)
+        return self.pipeline.encode(texts, self.model_name)
 
     def embed_query(self, text: str) -> List[float]:
-        return self.pipeline_object.encode(text, self.model_name)[0]
+        return self.pipeline.encode(text, self.model_name)[0]
 
 
 

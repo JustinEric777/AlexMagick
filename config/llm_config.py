@@ -94,13 +94,13 @@ MODEL_LIST: Dict[str, Any] = {
             "model_provider_name": "DeepSeekOpenvinoModel",
             "model_path": "/data/models/llm/openvino/deepseek",
             "model_list": [
+                "DeepSeek-R1-Distill-Qwen-32B-openvino-8bit",
+                "DeepSeek-R1-Distill-Qwen-32B-openvino-4bit",
                 "DeepSeek-R1-Distill-Llama-8B-openvino-int8",
                 "DeepSeek-R1-Distill-Llama-8B-openvino-int4",
                 "DeepSeek-R1-Distill-Qwen-7B-openvino-int8",
                 "DeepSeek-R1-Distill-Qwen-7B-openvino-int4",
                 "DeepSeek-R1-Distill-Qwen-1.5B-openvino-int8",
-                # "DeepSeek-R1-Distill-Llama-8B_GPTQ-openvino-int4",
-                # "DeepSeek-R1-Distill-Qwen-7B-sym-int4",
             ]
         },
         "llama3": {

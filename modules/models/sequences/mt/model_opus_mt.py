@@ -17,6 +17,10 @@ class OpusMTModel(BaseModel):
 
         return outputs
 
+    def release(self):
+        del self.model
+        del self.processor
+
 
 
 

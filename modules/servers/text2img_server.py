@@ -10,7 +10,7 @@ class Text2ImageServer(BaseServer):
 
     @Metric()
     def generate(self, positive_prompt, negative_prompt, seed, guidance_scale, num_inference_steps, width, height):
-        return self.pipeline_object.generate(
+        return self.pipeline.generate(
             positive_prompt,
             negative_prompt,
             seed,

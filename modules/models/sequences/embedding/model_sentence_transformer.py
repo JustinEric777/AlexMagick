@@ -36,3 +36,6 @@ class SentenceTransformerModel(BaseModel):
             embeddings = embeddings.numpy()
 
         return embeddings
+
+    def release(self):
+        del self.model

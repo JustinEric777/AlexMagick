@@ -35,22 +35,13 @@ class MiniCPMOTransformerModel(BaseModel):
                 """
 
     def chat(self, history, max_tokens, temperature, top_p, slider_context_times):
-        messages = []
-        history_true = history[1:-1]
-        if slider_context_times > 0:
-            for one_chat in history_true[-slider_context_times:]:
-                one_message_user = {"role": "user", "content": [one_chat[0].replace('<br>', '\n')]}
-                messages.append(one_message_user)
-                one_message_system = {"role": "assistant", "content": [one_chat[1].replace('<br>', '\n')]}
-                messages.append(one_message_system)
-
-        input_message = {"role": "user", "content": [self.generate_prompt(history[-1][0].replace('<br>', '\n'))]}
-        messages.append(input_message)
+        if slider_context_times < 1:
+            history = history[-1:]
 
         generate_input = {
             "tokenizer": self.tokenizer,
             "image": None,
-            "msgs": messages,
+            "msgs": history,
             "sampling": True,
             "stream": True,
             "top_k": 50,
@@ -65,13 +56,13 @@ class MiniCPMOTransformerModel(BaseModel):
 
         generated_tokens = []
         start_time = time.time()
-        bot_message = ''
-        cost_time, words_count, single_word_cost_time = 0, 0, 0
-        print('[Transformer] Human:', history[-1][0])
+        history.append({"role": "assistant", "content": ""})
+        cost_time, words_count, single_word_cost_time, per_second_tokens = 0, 0, 0, 0
+        print('[Transformer] Human:', history[-1]["content"])
         print('[Transformer] Assistant: ', end='', flush=True)
         for new_text in self.streamer:
             print(new_text, end='', flush=True)
-            bot_message += new_text
+            history[-1]["content"] += new_text
 
             # 计算生成token 速率
             token_ids = self.tokenizer.encode(new_text, add_special_tokens=False)
@@ -79,13 +70,16 @@ class MiniCPMOTransformerModel(BaseModel):
 
             end_time = time.time()
             cost_time = round(end_time-start_time, 3)
-            words_count = len(bot_message)
-            single_word_cost_time = round((end_time-start_time)/len(bot_message), 3)
+            words_count = len(history[-1]["content"])
+            single_word_cost_time = round((end_time-start_time)/len(history[-1]["content"]), 3)
             per_second_tokens = round(len(generated_tokens) / (end_time-start_time), 3)
 
-        yield bot_message, cost_time, words_count, single_word_cost_time, per_second_tokens
+        yield history, cost_time, words_count, single_word_cost_time, per_second_tokens
 
-
+    def release(self):
+        del self.model
+        del self.streamer
+        del self.tokenizer
 
 
 

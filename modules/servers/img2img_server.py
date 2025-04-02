@@ -11,7 +11,7 @@ class Image2ImageServer(BaseServer):
     @Metric()
     def generate(self, image, positive_prompt, negative_prompt, seed, guidance_scale, num_inference_steps, width, height):
 
-        return self.pipeline_object.generate(
+        return self.pipeline.generate(
             image,
             positive_prompt,
             negative_prompt,

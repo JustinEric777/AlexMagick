@@ -2,17 +2,25 @@ import time
 from threading import Thread
 from modules.models.sequences.llm.base_model import BaseModel
 from transformers import AutoTokenizer, TextIteratorStreamer
-from optimum.intel import OVModelForCausalLM, OVWeightQuantizationConfig
+from optimum.intel import OVModelForCausalLM
+import openvino.properties as props
 
 
 class DeepSeekOpenvinoModel(BaseModel):
     def load_model(self, model_path: str, device: str):
+        ov_config = {
+            # props.hint.scheduling_core_type(): props.hint.SchedulingCoreType.PCORE_ONLY,
+            # props.inference_num_threads(): 4,
+            props.cache_dir(): model_path
+        }
+
         model = OVModelForCausalLM.from_pretrained(
             model_path,
             use_cache=True,
             device=device,
             export=False,
-            version="opset8"
+            version="opset8",
+            ov_config=ov_config
         )
 
         tokenizer = AutoTokenizer.from_pretrained(model_path, use_cache=False)
@@ -29,21 +37,11 @@ class DeepSeekOpenvinoModel(BaseModel):
                 """
 
     def chat(self, history, max_tokens, temperature, top_p, slider_context_times):
-        messages = []
-
-        history_true = history[1:-1]
-        if slider_context_times > 0:
-            for one_chat in history_true[-slider_context_times:]:
-                one_message_user = {"role": "user", "content": one_chat[0].replace('<br>', '\n')}
-                messages.append(one_message_user)
-                one_message_system = {"role": "assistant", "content": one_chat[1].replace('<br>', '\n')}
-                messages.append(one_message_system)
-
-        input_message = {"role": "user", "content": self.generate_prompt(history[-1][0].replace('<br>', '\n'))}
-        messages.append(input_message)
+        if slider_context_times < 1:
+            history = history[-1:]
 
         input_ids = self.tokenizer.apply_chat_template(
-            messages,
+            history,
             add_generation_prompt=True,
             return_tensors="pt"
         ).to(self.model.device)
@@ -70,9 +68,9 @@ class DeepSeekOpenvinoModel(BaseModel):
 
         generated_tokens = []
         start_time = time.time()
-        bot_message = ''
+        history.append({"role": "assistant", "content": ""})
         cost_time, words_count, single_word_cost_time, per_second_tokens = 0, 0, 0, 0
-        print('[OpenVino] Human:', history[-1][0])
+        print('[OpenVino] Human:', history[-1]["content"])
         print('[OpenVino] Assistant: ', end='', flush=True)
         for new_text in self.streamer:
             print(new_text, end='', flush=True)
@@ -89,12 +87,12 @@ class DeepSeekOpenvinoModel(BaseModel):
                 new_text = "</blockquote> <span style='color: green'>【推理结果】：</span> <br>"
 
             if new_text != '<｜end▁of▁sentence｜>':
-                bot_message += new_text
-            if "<｜end▁of▁sentence｜>" in bot_message or "<｜end▁of▁sentence｜>" in bot_message:
-                bot_message = bot_message.replace('<｜end▁of▁sentence｜>', '')
+                history[-1]["content"] += new_text
+            if "<｜end▁of▁sentence｜>" in history[-1]["content"] or "<｜end▁of▁sentence｜>" in history[-1]["content"]:
+                history[-1]["content"] = history[-1]["content"].replace('<｜end▁of▁sentence｜>', '')
                 end_time = time.time()
 
-                trim_message = bot_message.replace("<span style='color: blue'>【深度思考】：</span> <br> <blockquote>", "")
+                trim_message = history[-1]["content"].replace("<span style='color: blue'>【深度思考】：</span> <br> <blockquote>", "")
                 trim_message = trim_message.replace("</blockquote> <span style='color: green'>【推理结果】：</span> <br>", "").strip()
 
                 cost_time = round(end_time-start_time, 3)
@@ -102,4 +100,9 @@ class DeepSeekOpenvinoModel(BaseModel):
                 single_word_cost_time = round((end_time-start_time)/len(trim_message), 3)
                 per_second_tokens = round(len(generated_tokens) / (end_time-start_time), 3)
 
-        yield bot_message, cost_time, words_count, single_word_cost_time, per_second_tokens
+            yield history, cost_time, words_count, single_word_cost_time, per_second_tokens
+
+    def release(self):
+        del self.model
+        del self.streamer
+        del self.tokenizer

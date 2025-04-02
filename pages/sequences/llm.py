@@ -9,7 +9,7 @@ def create_ui(args: dict):
     with gr.Tab(label="LLM Model", id="llm_tab") as llm_tab:
         with gr.Row():
             with gr.Column(scale=4):
-                chatbot = gr.Chatbot(height=500)
+                chatbot = gr.Chatbot(height=500, type='messages')
                 msg = gr.Textbox(label="Chatbot Input", lines=5, placeholder="Shift + Enter Send Message...", )
                 with gr.Row():
                     gr.Examples(
@@ -20,6 +20,18 @@ def create_ui(args: dict):
                             ],
                             [
                                 "鸡兔同笼，共35只头，94只脚，问鸡兔各多少？",
+                            ],
+                            [
+                                "Strawberry里有几个r？",
+                            ],
+                            [
+                                "一只死猫与核同位素、一瓶毒药和辐射探测器一起放入盒子中。如果辐射探测器检测到辐射，它将释放毒药。一天后，盒子打开。猫还活着吗？",
+                            ],
+                            [
+                                "假设在一个电车轨道上被绑了5个人，而它的备用轨道上被绑了1个人，又有一辆失控的电车飞速驶来，而你身边正好有一个摇杆，你可以推动摇杆来让电车驶入备用轨道。你该怎么做起伤害最小？",
+                            ],
+                            [
+                                "为什么会有这样的语言现象:生鱼片是死鱼片，等红灯是在等绿灯，咖啡因来自咖啡果，救火是在灭火，晒太阳是在晒人，肉夹馍是馍夹肉"
                             ]
                         ],
                         inputs=[msg],
@@ -38,7 +50,7 @@ def create_ui(args: dict):
                         slider_context_times = gr.Slider(minimum=0, maximum=5, label="context times", value=0, step=2.0)
 
         def user(user_message, history):
-            return "", history + [[user_message, None]]
+            return "", history + [{"role": "user", "content": user_message}]
 
         msg.submit(user, [msg, chatbot], [msg, chatbot], queue=True).then(
             llm.generate,

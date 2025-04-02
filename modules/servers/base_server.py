@@ -3,6 +3,7 @@ import os
 import json
 import time
 import gc
+import sys
 import importlib
 from typing import Dict, Any, Optional
 
@@ -32,18 +33,22 @@ class Metric:
                 "infer_arch": args[0].infer_arch,
                 "model_name": args[0].model_name,
                 "model_version": args[0].model_version_name,
-                "cost_time": round(time.time()-start_time, 3)
+                "cost_time": round(time.time() - start_time, 3)
             }
 
             if "sequence-mt" in args[0].task_type:
                 metric["words_count"] = len(result)
-                metric["single_word_cost_time"] = round(metric["cost_time"]/metric["words_count"], 3)
+                metric["single_word_cost_time"] = round(metric["cost_time"] / metric["words_count"], 3)
 
-            print(f"[{args[0].infer_arch}]: inputs = {json.dumps(args[1:])}, outputs = {result}, metric = {json.dumps(metric)}")
+            print(
+                f"[{args[0].infer_arch}]: inputs = {json.dumps(args[1:])}, outputs = {result}, metric = {json.dumps(metric)}")
 
             return result, get_format_metric(metric)
 
         return wrapper
+
+
+pipeline_object = None
 
 
 class BaseServer(abc.ABC):
@@ -52,7 +57,7 @@ class BaseServer(abc.ABC):
     infer_device: str = ""
     model_name: str = ""
     model_version_name: str = ""
-    pipeline_object: Any = None
+    pipeline: Any = None
     model_list: Dict[str, Any] = None
 
     def __init__(self):
@@ -68,8 +73,10 @@ class BaseServer(abc.ABC):
         if task_type != self.task_type:
             return
 
-        if self.pipeline_object is not None:
-            del self.pipeline_object
+        global pipeline_object
+
+        if pipeline_object is not None:
+            pipeline_object.release()
             gc.collect()
 
         model_path = os.path.join(self.model_list[infer_arch][model_name]["model_path"], model_version)
@@ -80,7 +87,7 @@ class BaseServer(abc.ABC):
         pipeline_object = model_class_name()
         pipeline_object.load_model(model_path, device)
 
-        self.pipeline_object = pipeline_object
+        self.pipeline = pipeline_object
         self.infer_arch = infer_arch
         self.device = device
         self.model_name = model_name
@@ -97,9 +104,11 @@ class BaseServer(abc.ABC):
             raise Exception("param model_name is empty")
         if "model_version" not in params:
             raise Exception("param model_version is empty")
-        self.__load_model(params["task_type"], params["infer_arch"], params["device"], params["model_name"], params["model_version"])
+        self.__load_model(params["task_type"], params["infer_arch"], params["device"], params["model_name"],
+                          params["model_version"])
 
-    def reload_model(self, infer_arch: Optional[str] = None,  device: Optional[str] = None, model_name: Optional[str] = None, model_version: Optional[str] = None, default: bool = False):
+    def reload_model(self, infer_arch: Optional[str] = None, device: Optional[str] = None,
+                     model_name: Optional[str] = None, model_version: Optional[str] = None, default: bool = False):
         if default:
             arch_list = self.get_infer_arch_list()
             infer_arch = arch_list[0] if len(arch_list) > 0 else ""
@@ -148,6 +157,3 @@ class BaseServer(abc.ABC):
     @Metric()
     def get_metric(self, **kwargs):
         pass
-
-
-

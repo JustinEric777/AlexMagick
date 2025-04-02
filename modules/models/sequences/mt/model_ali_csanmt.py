@@ -18,3 +18,7 @@ class AliCSANMTModel(BaseModel):
         outputs = self.model(input=text)
 
         return outputs["translation"]
+
+    def release(self):
+        del self.model
+        del self.processor

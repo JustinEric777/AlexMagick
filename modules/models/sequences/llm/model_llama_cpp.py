@@ -15,23 +15,11 @@ class LlamaCppModel(BaseModel):
                 """
 
     def chat(self, history, max_tokens, temperature, top_p, slider_context_times):
-        messages = [
-            {"role": "system", "content": ""}
-        ]
-
-        history_true = history[1:-1]
-        if slider_context_times > 0:
-            for one_chat in history_true[-slider_context_times:]:
-                one_message_user = {"role": "user", "content": one_chat[0].replace('<br>', '\n')}
-                messages.append(one_message_user)
-                one_message_system = {"role": "assistant", "content": one_chat[1].replace('<br>', '\n')}
-                messages.append(one_message_system)
-
-        input_message = {"role": "user", "content": self.generate_prompt(history[-1][0].replace('<br>', '\n'))}
-        messages.append(input_message)
+        if slider_context_times < 1:
+            history = history[-1:]
 
         response = self.model.create_chat_completion(
-            messages,
+            history,
             max_tokens=max_tokens,
             top_k=50,
             top_p=top_p,
@@ -41,9 +29,9 @@ class LlamaCppModel(BaseModel):
 
         generated_tokens = []
         start_time = time.time()
-        bot_message = ''
+        history.append({"role": "assistant", "content": ""})
         cost_time, words_count, single_word_cost_time, per_second_tokens = 0, 0, 0, 0
-        print('[LLamaCPP] Human:', history[-1][0])
+        print('[LLamaCPP] Human:', history[-1]["content"])
         print('[LLamaCPP] Assistant: ', end='', flush=True)
         for chunk in response:
             if "content" in chunk["choices"][0]["delta"]:
@@ -54,14 +42,17 @@ class LlamaCppModel(BaseModel):
                 token_ids = self.tokenizer.encode(new_text, add_special_tokens=False)
                 generated_tokens.extend(token_ids)
 
-                bot_message += new_text
+                history[-1]["content"] += new_text
             if "finish_reason" in chunk["choices"][0] and chunk["choices"][0]["finish_reason"] == "stop":
                 end_time = time.time()
                 cost_time = round(end_time-start_time, 3)
-                words_count = len(bot_message)
-                single_word_cost_time = round((end_time-start_time)/len(bot_message), 3)
+                words_count = len(history[-1]["content"])
+                single_word_cost_time = round((end_time-start_time)/len(history[-1]["content"]), 3)
                 per_second_tokens = round(len(generated_tokens) / (end_time-start_time), 3)
 
-        yield bot_message, cost_time, words_count, single_word_cost_time, per_second_tokens
+        yield history, cost_time, words_count, single_word_cost_time, per_second_tokens
 
-
+    def release(self):
+        del self.model
+        del self.streamer
+        del self.tokenizer

@@ -29,23 +29,11 @@ class LlamaOpenvinoModel(BaseModel):
                 """
 
     def chat(self, history, max_tokens, temperature, top_p, slider_context_times):
-        messages = [
-            {"role": "system", "content": ""}
-        ]
-
-        history_true = history[1:-1]
-        if slider_context_times > 0:
-            for one_chat in history_true[-slider_context_times:]:
-                one_message_user = {"role": "user", "content": one_chat[0].replace('<br>', '\n')}
-                messages.append(one_message_user)
-                one_message_system = {"role": "assistant", "content": one_chat[1].replace('<br>', '\n')}
-                messages.append(one_message_system)
-
-        input_message = {"role": "user", "content": self.generate_prompt(history[-1][0].replace('<br>', '\n'))}
-        messages.append(input_message)
+        if slider_context_times < 1:
+            history = history[-1:]
 
         input_ids = self.tokenizer.apply_chat_template(
-            messages,
+            history,
             add_generation_prompt=True,
             return_tensors="pt"
         ).to(self.model.device)
@@ -72,9 +60,9 @@ class LlamaOpenvinoModel(BaseModel):
 
         generated_tokens = []
         start_time = time.time()
-        bot_message = ''
+        history.append({"role": "assistant", "content": ""})
         cost_time, words_count, single_word_cost_time, per_second_tokens = 0, 0, 0, 0
-        print('[OpenVino] Human:', history[-1][0])
+        print('[OpenVino] Human:', history[-1]["content"])
         print('[OpenVino] Assistant: ', end='', flush=True)
         for new_text in self.streamer:
             print(new_text, end='', flush=True)
@@ -86,15 +74,20 @@ class LlamaOpenvinoModel(BaseModel):
             generated_tokens.extend(token_ids)
 
             if new_text != '<|eot_id|>':
-                bot_message += new_text
-            if "<|eot_id|>" in bot_message or "<|end_of_text|>" in bot_message:
-                bot_message = bot_message.replace('<|eot_id|>', '')
-                bot_message = bot_message.replace('<|end_of_text|>', '')
+                history[-1]["content"] += new_text
+            if "<|eot_id|>" in history[-1]["content"] or "<|end_of_text|>" in history[-1]["content"]:
+                history[-1]["content"] = history[-1]["content"].replace('<|eot_id|>', '')
+                history[-1]["content"] = history[-1]["content"].replace('<|end_of_text|>', '')
                 end_time = time.time()
 
                 cost_time = round(end_time-start_time, 3)
-                words_count = len(bot_message)
-                single_word_cost_time = round((end_time-start_time)/len(bot_message), 3)
+                words_count = len(history[-1]["content"])
+                single_word_cost_time = round((end_time-start_time)/len(history[-1]["content"]), 3)
                 per_second_tokens = round(len(generated_tokens) / (end_time-start_time), 3)
 
-            yield bot_message, cost_time, words_count, single_word_cost_time, per_second_tokens
+            yield history, cost_time, words_count, single_word_cost_time, per_second_tokens
+
+    def release(self):
+        del self.model
+        del self.streamer
+        del self.tokenizer

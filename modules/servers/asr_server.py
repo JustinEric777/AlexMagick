@@ -1,7 +1,5 @@
-import gc
 import json
 import time
-import importlib
 from typing import List
 from config.asr_config import MODEL_LIST
 from modules.servers.base_server import BaseServer
@@ -21,7 +19,7 @@ class ASRServer(BaseServer):
 
     def generate(self, audio: str, model_name: str):
         start_time = time.time()
-        outputs = self.pipeline_object.generate(audio)
+        outputs = self.pipeline.generate(audio)
         metric = {
             "model_name": model_name,
             "cost_time": round(time.time()-start_time, 3),

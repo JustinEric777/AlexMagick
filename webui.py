@@ -23,8 +23,8 @@ def get_default_tab_value(params: dict) -> dict:
 
 
 def create_ui(params: dict):
-    with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
-        gr.Markdown("""<h1 style="display:block; width:100%; margin: 20px"><center>Alex Magick AI Assistant</center></h1>""")
+    with gr.Blocks(theme=gr.themes.Soft(font=[gr.themes.GoogleFont("Source Sans Pro"), "Arial", "sans-serif"]), css=custom_css) as demo:
+        gr.Markdown("""<h1 style="display:block; width:100%; margin: 20px; font-size: 32px"><center>Alex Magick AI Assistant</center></h1>""")
 
         with gr.Tabs(selected=params["default_first_tab"]):
             # create_ui

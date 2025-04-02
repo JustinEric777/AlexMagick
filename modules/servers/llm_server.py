@@ -9,23 +9,18 @@ class LLMServer(BaseServer):
         self.task_type = TASK_TYPE
 
     def generate(self, history, max_tokens, temperature, top_p, slider_context_times):
-        messages = [one_message.copy() for one_message in history]
-        for line in messages:
-            if line[1] is not None:
-                arr = line[1].split("\n")
-                line[1] = arr[0]
-        for message, cost_time, words_count, single_word_cost_time, per_second_tokens in self.pipeline_object.chat(
-                messages,
+        for history, cost_time, words_count, single_word_cost_time, per_second_tokens in self.pipeline.chat(
+                history,
                 max_tokens,
                 temperature,
                 top_p,
                 slider_context_times
         ):
-            history[-1][1] = message
-            if cost_time != 0 and words_count != 0 and single_word_cost_time != 0:
-                history[-1][1] += self.get_metric(self.infer_arch, self.device, self.model_name,
-                                                  self.model_version_name, cost_time,
-                                                  words_count, single_word_cost_time, per_second_tokens)
+            #
+            # if cost_time != 0 and words_count != 0 and single_word_cost_time != 0:
+            #     history[-1][""] += self.get_metric(self.infer_arch, self.device, self.model_name,
+            #                                       self.model_version_name, cost_time,
+            #                                       words_count, single_word_cost_time, per_second_tokens)
             yield history
 
     def get_metric(self, infer_arch: str, device: str, model_name: str, model_version: str, cost_time: float,

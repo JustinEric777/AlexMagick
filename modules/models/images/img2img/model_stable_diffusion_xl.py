@@ -35,5 +35,8 @@ class ModelStableDiffusionXL(BaseModel):
             generator=generator,
         ).images[0]
 
+    def release(self):
+        del self.pipline
+
 
 
