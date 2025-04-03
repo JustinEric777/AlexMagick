@@ -38,10 +38,12 @@ class DeepSeekOpenvinoModel(BaseModel):
 
     def chat(self, history, max_tokens, temperature, top_p, slider_context_times):
         if slider_context_times < 1:
-            history = history[-1:]
+            messages = history[-1:]
+        else:
+            messages = history[-slider_context_times:]
 
         input_ids = self.tokenizer.apply_chat_template(
-            history,
+            messages,
             add_generation_prompt=True,
             return_tensors="pt"
         ).to(self.model.device)
@@ -68,7 +70,7 @@ class DeepSeekOpenvinoModel(BaseModel):
 
         generated_tokens = []
         start_time = time.time()
-        history.append({"role": "assistant", "content": ""})
+        bot_message = ''
         cost_time, words_count, single_word_cost_time, per_second_tokens = 0, 0, 0, 0
         print('[OpenVino] Human:', history[-1]["content"])
         print('[OpenVino] Assistant: ', end='', flush=True)
@@ -84,23 +86,23 @@ class DeepSeekOpenvinoModel(BaseModel):
             if "<think>" in new_text:
                 new_text = "<span style='color: blue'>【深度思考】：</span> <br> <blockquote>"
             if "</think>" in new_text:
-                new_text = "</blockquote> <span style='color: green'>【推理结果】：</span> <br>"
+                new_text = "</blockquote> <span style='color: green'>【推理结果】：</span> <br> <br>"
 
             if new_text != '<｜end▁of▁sentence｜>':
-                history[-1]["content"] += new_text
-            if "<｜end▁of▁sentence｜>" in history[-1]["content"] or "<｜end▁of▁sentence｜>" in history[-1]["content"]:
-                history[-1]["content"] = history[-1]["content"].replace('<｜end▁of▁sentence｜>', '')
+                bot_message += new_text
+            if "<｜end▁of▁sentence｜>" in bot_message or "<｜end▁of▁sentence｜>" in bot_message:
+                bot_message = bot_message.replace('<｜end▁of▁sentence｜>', '')
                 end_time = time.time()
 
-                trim_message = history[-1]["content"].replace("<span style='color: blue'>【深度思考】：</span> <br> <blockquote>", "")
-                trim_message = trim_message.replace("</blockquote> <span style='color: green'>【推理结果】：</span> <br>", "").strip()
+                trim_message = bot_message.replace("<span style='color: blue'>【深度思考】：</span> <br> <blockquote>", "")
+                trim_message = trim_message.replace("</blockquote> <span style='color: green'>【推理结果】：</span> <br> <br>", "").strip()
 
                 cost_time = round(end_time-start_time, 3)
                 words_count = len(trim_message)
                 single_word_cost_time = round((end_time-start_time)/len(trim_message), 3)
                 per_second_tokens = round(len(generated_tokens) / (end_time-start_time), 3)
 
-            yield history, cost_time, words_count, single_word_cost_time, per_second_tokens
+            yield bot_message, cost_time, words_count, single_word_cost_time, per_second_tokens
 
     def release(self):
         del self.model

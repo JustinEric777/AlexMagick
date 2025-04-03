@@ -36,12 +36,14 @@ class MiniCPMOTransformerModel(BaseModel):
 
     def chat(self, history, max_tokens, temperature, top_p, slider_context_times):
         if slider_context_times < 1:
-            history = history[-1:]
+            messages = history[-1:]
+        else:
+            messages = history[-slider_context_times:]
 
         generate_input = {
             "tokenizer": self.tokenizer,
             "image": None,
-            "msgs": history,
+            "msgs": messages,
             "sampling": True,
             "stream": True,
             "top_k": 50,
@@ -56,13 +58,13 @@ class MiniCPMOTransformerModel(BaseModel):
 
         generated_tokens = []
         start_time = time.time()
-        history.append({"role": "assistant", "content": ""})
-        cost_time, words_count, single_word_cost_time, per_second_tokens = 0, 0, 0, 0
+        bot_message = ''
+        cost_time, words_count, single_word_cost_time = 0, 0, 0
         print('[Transformer] Human:', history[-1]["content"])
         print('[Transformer] Assistant: ', end='', flush=True)
         for new_text in self.streamer:
             print(new_text, end='', flush=True)
-            history[-1]["content"] += new_text
+            bot_message += new_text
 
             # 计算生成token 速率
             token_ids = self.tokenizer.encode(new_text, add_special_tokens=False)
@@ -70,11 +72,11 @@ class MiniCPMOTransformerModel(BaseModel):
 
             end_time = time.time()
             cost_time = round(end_time-start_time, 3)
-            words_count = len(history[-1]["content"])
-            single_word_cost_time = round((end_time-start_time)/len(history[-1]["content"]), 3)
+            words_count = len(bot_message)
+            single_word_cost_time = round((end_time-start_time)/len(bot_message), 3)
             per_second_tokens = round(len(generated_tokens) / (end_time-start_time), 3)
 
-        yield history, cost_time, words_count, single_word_cost_time, per_second_tokens
+            yield bot_message, cost_time, words_count, single_word_cost_time, per_second_tokens
 
     def release(self):
         del self.model

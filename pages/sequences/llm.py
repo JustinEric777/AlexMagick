@@ -9,7 +9,7 @@ def create_ui(args: dict):
     with gr.Tab(label="LLM Model", id="llm_tab") as llm_tab:
         with gr.Row():
             with gr.Column(scale=4):
-                chatbot = gr.Chatbot(height=500, type='messages')
+                chatbot = gr.Chatbot(height=500, type='messages', show_copy_button=True)
                 msg = gr.Textbox(label="Chatbot Input", lines=5, placeholder="Shift + Enter Send Message...", )
                 with gr.Row():
                     gr.Examples(

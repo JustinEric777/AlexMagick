@@ -29,7 +29,9 @@ class LlamaIpexLLMModel(BaseModel):
 
     def chat(self, history, max_tokens, temperature, top_p, slider_context_times):
         if slider_context_times < 1:
-            history = history[-1:]
+            messages = history[-1:]
+        else:
+            messages = history[-slider_context_times:]
 
         input_ids = self.tokenizer.apply_chat_template(
             messages,
@@ -54,8 +56,7 @@ class LlamaIpexLLMModel(BaseModel):
         )
 
         start_time = time.time()
-        bot_message = ""
-        history.append({"role": "assistant", "content": ""})
+        bot_message = ''
         cost_time, words_count, single_word_cost_time = 0, 0, 0
         print('[IpexLLM] Human:', history[-1]["content"])
         print('[IpexLLM] Assistant: ', end='', flush=True)
@@ -64,10 +65,10 @@ class LlamaIpexLLMModel(BaseModel):
 
             end_time = time.time()
             cost_time = round(end_time-start_time, 3)
-            words_count = len(history[-1]["content"])
-            single_word_cost_time = round((end_time-start_time)/len(history[-1]["content"]), 3)
-            history[-1]["content"] = chunk
-            yield history, cost_time, words_count, single_word_cost_time
+            words_count = len(bot_message)
+            single_word_cost_time = round((end_time-start_time)/len(bot_message), 3)
+            bot_message = chunk
+            yield bot_message, cost_time, words_count, single_word_cost_time
 
     def release(self):
         del self.model

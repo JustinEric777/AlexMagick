@@ -3,7 +3,6 @@ from pages.audios import asr, tts
 
 
 def reload_default_model():
-    print(22222)
     asr.asr.reload_model(default=True)
 
 

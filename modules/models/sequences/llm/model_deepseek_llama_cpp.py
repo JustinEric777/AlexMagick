@@ -15,10 +15,12 @@ class DeepSeekLlamaCppModel(BaseModel):
 
     def chat(self, history, max_tokens, temperature, top_p, slider_context_times):
         if slider_context_times < 1:
-            history = history[-1:]
+            messages = history[-1:]
+        else:
+            messages = history[-slider_context_times:]
 
         response = self.model.create_chat_completion(
-            history,
+            messages,
             max_tokens=max_tokens,
             top_k=50,
             top_p=top_p,
@@ -28,7 +30,7 @@ class DeepSeekLlamaCppModel(BaseModel):
 
         generated_tokens = []
         start_time = time.time()
-        history.append({"role": "assistant", "content": ""})
+        bot_message = ''
         cost_time, words_count, single_word_cost_time, per_second_tokens = 0, 0, 0, 0
         print('[LLamaCPP] Human:', history[-1]["content"])
         print('[LLamaCPP] Assistant: ', end='', flush=True)
@@ -40,27 +42,27 @@ class DeepSeekLlamaCppModel(BaseModel):
                     continue
 
                 # 计算生成token 速率
-                token_ids = self.model.tokenize(str.encode(new_text))
+                token_ids = self.tokenizer.encode(new_text, add_special_tokens=False)
                 generated_tokens.extend(token_ids)
 
                 if "<think>" in new_text:
                     new_text = " <span style='color: blue'>【深度思考】：</span> <br> <blockquote>"
                 if "</think>" in new_text:
-                    new_text = "</blockquote> <span style='color: green'>【推理结果】：</span> <br>"
+                    new_text = "</blockquote> <span style='color: green'>【推理结果】：</span> <br> <br>"
 
-                history[-1]["content"] += new_text
+                bot_message += new_text
 
             if "finish_reason" in chunk["choices"][0] and chunk["choices"][0]["finish_reason"] in ["stop", "length"]:
                 end_time = time.time()
                 cost_time = round(end_time-start_time, 3)
-                trim_message = history[-1]["content"].replace("<span style='color: blue'>【深度思考】：</span> <br> <blockquote>", "")
-                trim_message = trim_message.replace("</blockquote> <span style='color: green'>【推理结果】：</span> <br>", "").strip()
+                trim_message = bot_message.replace("<span style='color: blue'>【深度思考】：</span> <br> <blockquote>", "")
+                trim_message = trim_message.replace("</blockquote> <span style='color: green'>【推理结果】：</span> <br> <br>", "").strip()
                 words_count = len(trim_message)
 
                 single_word_cost_time = round((end_time-start_time)/len(trim_message), 3)
                 per_second_tokens = round(len(generated_tokens) / (end_time-start_time), 3)
 
-            yield history, cost_time, words_count, single_word_cost_time, per_second_tokens
+            yield bot_message, cost_time, words_count, single_word_cost_time, per_second_tokens
 
     def release(self):
         del self.model
