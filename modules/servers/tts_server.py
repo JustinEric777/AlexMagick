@@ -22,6 +22,7 @@ class TTSServer(BaseServer):
         outputs = self.pipeline.inference(texts)
         metric = {
             "model_name": model_name,
+            "text_length": len(texts),
             "cost_time": round(time.time()-start_time, 3),
         }
         print(f"outputs = {outputs}, metric = {json.dumps(metric)}")
@@ -31,5 +32,6 @@ class TTSServer(BaseServer):
     def get_metric(self, metric_info: dict):
         return f"""
                 <span style="color: red">model_name：{metric_info["model_name"]}
+                text_length：{metric_info["text_length"]}
                 cost_time：{metric_info["cost_time"]} 
                 """

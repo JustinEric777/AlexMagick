@@ -27,12 +27,7 @@ class SparkTTSModel(BaseModel):
         self.tokenizer = tokenizer
         self.audio_tokenizer = audio_tokenizer
 
-    def process_prompt(
-            self,
-            text: str,
-            prompt_speech_path: Path,
-            prompt_text: str = None,
-    ) -> Tuple[str, torch.Tensor]:
+    def process_prompt(self, text: str, prompt_speech_path: Path, prompt_text: str = None) -> Tuple[str, torch.Tensor]:
         global_token_ids, semantic_token_ids = self.audio_tokenizer.tokenize(
             prompt_speech_path
         )

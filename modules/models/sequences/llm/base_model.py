@@ -4,6 +4,7 @@ from typing import Any
 
 class BaseModel(metaclass=abc.ABCMeta):
     model: Any = None
+    processor: Any = None
     tokenizer: Any = None
     streamer: Any = None
 
@@ -16,6 +17,6 @@ class BaseModel(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def chat(self, history, max_tokens, temperature, top_p, slider_context_times):
+    def chat(self, history, max_tokens, temperature, top_p, slider_context_times, return_audio):
         pass
 

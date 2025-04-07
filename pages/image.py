@@ -8,7 +8,7 @@ def reload_default_model():
 
 def create_ui(params: dict):
     with gr.Tab("Image Models", id="image_tab") as image_tab:
-        select_tab = params["default_second_tab"] if params["default_first_tab"] == image_tab else None
+        select_tab = params["default_second_tab"] if params["default_first_tab"] == "image_tab" else None
         with gr.Tabs(selected=select_tab):
             text2img.create_ui(params)
             img2img.create_ui(params)

@@ -14,7 +14,7 @@ class FishTTSModel(BaseModel):
             device=device,
         )
 
-    def inference(self, text: str):
+    def inference(self, text: str, sample_wav: str = None):
         pass
 
     def release(self):

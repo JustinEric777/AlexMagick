@@ -1,7 +1,9 @@
+import os.path
+import time
 import torch
 import torchaudio
 import ChatTTS
-from modules.models.audios.tts.base_model import BaseModel
+from modules.models.audios.tts.base_model import BaseModel, AUDIO_PATH
 
 torch._dynamo.config.cache_size_limit = 64
 torch._dynamo.config.suppress_errors = True
@@ -20,9 +22,10 @@ class ChatTTSModel(BaseModel):
         self.device = device
         self.model = model
 
-    def inference(self, texts: [], audio_path: str, sample_wav: str):
-        sample_audio = torchaudio.load(sample_wav)
-        speaker = self.model.sample_audio_speaker(sample_audio)
+    def inference(self, texts: [], sample_wav: str = None):
+        # sample_audio = torchaudio.load(sample_wav)
+        # speaker = self.model.sample_audio_speaker(sample_audio)
+        speaker =  self.model.sample_random_speaker()
         params_infer_code = ChatTTS.Chat.InferCodeParams(
             spk_emb=speaker,
             temperature=0.3,
@@ -40,9 +43,15 @@ class ChatTTSModel(BaseModel):
             params_infer_code=params_infer_code,
         )
 
-        torchaudio.save("word_level_output.wav", torch.from_numpy(wavs[0]), 24000)
+        audio_path = os.path.join(AUDIO_PATH, f"chattts_{int(time.time() * 1000)}")
+        for i in range(len(wavs)):
+            audio_path = f"{audio_path}_{i}.wav"
+            try:
+                torchaudio.save(audio_path, torch.from_numpy(wavs[i]).unsqueeze(0), 24000)
+            except:
+                torchaudio.save(audio_path, torch.from_numpy(wavs[i]), 24000)
 
-        return texts, audio_path
+        return audio_path
 
     def release(self):
         del self.model

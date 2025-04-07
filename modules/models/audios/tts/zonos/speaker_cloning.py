@@ -1,4 +1,5 @@
 import math
+import os.path
 from functools import cache
 
 import torch
@@ -388,15 +389,18 @@ class SpeakerEmbedding(nn.Module):
 class SpeakerEmbeddingLDA(nn.Module):
     def __init__(self, device: str = DEFAULT_DEVICE):
         super().__init__()
-        spk_model_path = hf_hub_download(
-            repo_id="Zyphra/Zonos-v0.1-speaker-embedding",
-            filename="ResNet293_SimAM_ASP_base.pt",
-        )
-        lda_spk_model_path = hf_hub_download(
-            repo_id="Zyphra/Zonos-v0.1-speaker-embedding",
-            filename="ResNet293_SimAM_ASP_base_LDA-128.pt",
-        )
+        # spk_model_path = hf_hub_download(
+        #     repo_id="Zyphra/Zonos-v0.1-speaker-embedding",
+        #     filename="ResNet293_SimAM_ASP_base.pt",
+        # )
+        # lda_spk_model_path = hf_hub_download(
+        #     repo_id="Zyphra/Zonos-v0.1-speaker-embedding",
+        #     filename="ResNet293_SimAM_ASP_base_LDA-128.pt",
+        # )
 
+        model_path = "/data/models/tts/Zonos-v0.1-transformer/Zonos-v0.1-speaker-embedding"
+        spk_model_path = os.path.join(model_path, "ResNet293_SimAM_ASP_base.pt")
+        lda_spk_model_path = os.path.join(model_path, "ResNet293_SimAM_ASP_base_LDA-128.pt")
         self.device = device
         with torch.device(device):
             self.model = SpeakerEmbedding(spk_model_path, device)

@@ -1,5 +1,12 @@
 import abc
+import os
+import sys
 from typing import Any
+sub_module_path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+if sub_module_path not in sys.path:
+    sys.path.insert(0, sub_module_path)
+
+AUDIO_PATH = "storage/audio/tts"
 
 
 class BaseModel(metaclass=abc.ABCMeta):
@@ -14,6 +21,6 @@ class BaseModel(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def inference(self, text: [str], audio_path: str, sample_wav: str):
+    def inference(self, text: [str], sample_wav: str):
         pass
 
