@@ -2,14 +2,59 @@ import os.path
 import time
 import ffmpeg
 import soundfile as sf
+from typing import Dict
+from types import MethodType
 from transformers import Qwen2_5OmniModel, Qwen2_5OmniProcessor
+from transformers.utils.hub import cached_file
 from .qwen_omni_utils import process_mm_info
 from gradio_client import utils as client_utils
 from modules.models.sequences.llm.base_model import BaseModel
+from gptqmodel import GPTQModel, QuantizeConfig, BACKEND
+from gptqmodel.models.base import BaseGPTQModel
+from gptqmodel.models.auto import MODEL_MAP, SUPPORTED_MODELS
+from gptqmodel.models._const import CPU
 
 
 USE_AUDIO_IN_VIDEO = True
 CACHE_AUDIO_PATH = "storage/multimodals/Qwen2.5-Omni"
+
+
+class Qwen25OmniThiknerGPTQ(BaseGPTQModel):
+    loader = Qwen2_5OmniModel
+    base_modules = [
+        "thinker.model.embed_tokens",
+        "thinker.model.norm",
+        "token2wav",
+        "thinker.audio_tower",
+        "thinker.model.rotary_emb",
+        "thinker.visual",
+        "talker"
+    ]
+    pre_lm_head_norm_module = "thinker.model.norm"
+    require_monkeypatch = False
+    layers_node = "thinker.model.layers"
+    layer_type = "Qwen2_5OmniDecoderLayer"
+    layer_modules = [
+        ["self_attn.k_proj", "self_attn.v_proj", "self_attn.q_proj"],
+        ["self_attn.o_proj"],
+        ["mlp.up_proj", "mlp.gate_proj"],
+        ["mlp.down_proj"],
+    ]
+
+    def pre_quantize_generate_hook_start(self):
+        self.thinker.visual = move_to(self.thinker.visual, device=self.quantize_config.device)
+        self.thinker.audio_tower = move_to(self.thinker.audio_tower, device=self.quantize_config.device)
+
+    def pre_quantize_generate_hook_end(self):
+        self.thinker.visual = move_to(self.thinker.visual, device=CPU)
+        self.thinker.audio_tower = move_to(self.thinker.audio_tower, device=CPU)
+
+    def preprocess_dataset(self, sample: Dict) -> Dict:
+        return sample
+
+
+MODEL_MAP["qwen2_5_omni"] = Qwen25OmniThiknerGPTQ
+SUPPORTED_MODELS.append("qwen2_5_omni")
 
 
 def format_history(history: list):
@@ -67,9 +112,33 @@ def convert_webm_to_mp4(input_file, output_file):
         print(e.stderr.decode('utf-8'))
 
 
-class QwenOmiTransformerModel(BaseModel):
+class QwenOmiTransformerGPTQModel(BaseModel):
     def load_model(self, model_path: str, device: str):
-        model = Qwen2_5OmniModel.from_pretrained(
+        @classmethod
+        def patched_from_config(cls, config, *args, **kwargs):
+            print("kwargs = ", kwargs)
+            kwargs.pop("trust_remote_code", None)
+            model = cls._from_config(config, **kwargs)
+            spk_path = cached_file(
+                model_path,
+                "spk_dict.pt",
+                subfolder=kwargs.pop("subfolder", None),
+                cache_dir=kwargs.pop("cache_dir", None),
+                force_download=kwargs.pop("force_download", False),
+                proxies=kwargs.pop("proxies", None),
+                resume_download=kwargs.pop("resume_download", None),
+                local_files_only=kwargs.pop("local_files_only", False),
+                token=kwargs.pop("use_auth_token", None),
+                revision=kwargs.pop("revision", None),
+            )
+            if spk_path is None:
+                raise ValueError(f"Speaker dictionary not found at {spk_path}")
+
+            model.load_speakers(spk_path)
+            return model
+
+        Qwen2_5OmniModel.from_config = patched_from_config
+        model = GPTQModel.load(
             model_path,
             device_map=device.lower(),
             torch_dtype="auto",

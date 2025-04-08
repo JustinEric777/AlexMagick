@@ -17,6 +17,6 @@ class BaseModel(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def chat(self, history, max_tokens, temperature, top_p, slider_context_times, return_audio):
+    def chat(self, history, max_tokens, temperature, top_p, slider_context_times):
         pass
 

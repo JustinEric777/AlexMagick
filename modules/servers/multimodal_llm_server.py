@@ -21,7 +21,7 @@ class MultimodalLLMServer(BaseServer):
     def generate(self, history, max_tokens, temperature, top_p, slider_context_times, return_audio):
         messages = remove_metric(history)
         history.append({"role": "assistant", "content": ""})
-        for message, cost_time, words_count, single_word_cost_time, per_second_tokens in self.pipeline.chat(
+        for message, cost_time, words_count, single_word_cost_time, output_tokens_count, per_second_tokens in self.pipeline.chat(
                 messages,
                 max_tokens,
                 temperature,
@@ -36,13 +36,14 @@ class MultimodalLLMServer(BaseServer):
                 if cost_time != 0 and words_count != 0 and single_word_cost_time != 0:
                     history[-1]["content"] += self.get_metric(self.infer_arch, self.device, self.model_name,
                                                               self.model_version_name, cost_time,
-                                                              words_count, single_word_cost_time, per_second_tokens)
+                                                              words_count, single_word_cost_time, output_tokens_count, per_second_tokens)
 
             yield history
 
     def get_metric(self, infer_arch: str, device: str, model_name: str, model_version: str, cost_time: float,
                    words_count: int,
                    single_word_cost_time: float,
+                   output_tokens_count: int,
                    per_second_tokens: float, ) -> str:
         return f"""
                 <span style="color: red; display:block; float:right; margin-right: 10px">
@@ -53,5 +54,6 @@ class MultimodalLLMServer(BaseServer):
                 cost_time：{cost_time} 
                 words_count：{words_count} 
                 per_second_tokens：{per_second_tokens} tokens / s
+                output_tokens_count：{output_tokens_count} 
                 single_word_cost_time：{single_word_cost_time}</span>
                 """

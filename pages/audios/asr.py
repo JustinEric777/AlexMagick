@@ -43,10 +43,7 @@ def create_ui(args: dict):
                               <source src="{HOST_PREFIX}{original_audio}" type="audio/wav">
                          </audio>"""
             new_row = [audio, translated_text, metric_value.strip()]
-            if len(items[0][0]) == 0 and len(items[0][1]) == 0:
-                items[0] = new_row
-            else:
-                items.append(new_row)
+            items.append(new_row)
             return items
 
         generate_bt.click(asr.generate, inputs=[input_audio, model_version], outputs=[text_output, metric], queue=False).then(

@@ -26,7 +26,7 @@ class OpenAIWhisperModel(BaseModel):
         audio_info, sampling_rate = torchaudio.load(audio)
         inputs = self.processor(
             audio_info[0],
-            sampling_rate=sampling_rate,
+            sampling_rate=16000,
             return_tensors="pt",
             truncation=False,
             padding="longest",
