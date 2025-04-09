@@ -1,7 +1,6 @@
 import gradio as gr
 
 HOST_PREFIX = "http://10.172.10.75:7860/gradio_api/file="
-# HOST_PREFIX = "http://100.76.158.95:7860/gradio_api/file="
 GENERATE_TTS_AUDIO_PATH = "storage/audio/tts"
 
 
