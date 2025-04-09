@@ -140,7 +140,7 @@ class BaseServer(abc.ABC):
         if infer_arch == "OpenVino":
             return ["CPU", "GPU", "NPU", "AUTO"]
 
-        return ["CPU"]
+        return ["CPU", "cuda:0", "AUTO"]
 
     def get_model_list(self, infer_arch: Optional[str] = None, model_name: Optional[str] = None):
         if infer_arch not in self.model_list:
