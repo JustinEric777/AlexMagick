@@ -1,5 +1,5 @@
 import gradio as gr
-from pages.audios import asr, tts
+from pages.audios import asr, tts, retrieval
 
 
 def reload_default_model():
@@ -12,4 +12,5 @@ def create_ui(params: dict):
         with gr.Tabs(selected=select_tab):
             asr.create_ui(params)
             tts.create_ui(params)
+            retrieval.create_ui(params)
     audio_tab.select(reload_default_model)

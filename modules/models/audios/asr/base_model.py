@@ -3,6 +3,7 @@ from typing import Any
 
 
 class BaseModel(metaclass=abc.ABCMeta):
+    pipeline: Any = None
     model: Any = None
     processor: Any = None
     device: Any = None

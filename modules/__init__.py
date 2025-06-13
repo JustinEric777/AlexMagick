@@ -9,6 +9,7 @@ from modules.servers.text2embedding_server import TextEmbeddingServer
 from modules.servers.video2embedding import VideoEmbeddingServer
 from modules.servers.video2embedding import VideoEmbeddingServer
 from modules.servers.multimodal_llm_server import MultimodalLLMServer
+from modules.servers.audio2embedding_server import AudioEmbeddingServer
 
 llm = LLMServer()
 mt = MtServer()
@@ -20,3 +21,4 @@ inpainting = InpaintingServer()
 text2embedding = TextEmbeddingServer()
 video2embedding = VideoEmbeddingServer()
 multimodal_llm = MultimodalLLMServer()
+audio2embedding = AudioEmbeddingServer()

@@ -16,8 +16,10 @@ class ZonosTTSModel(BaseModel):
         self.device = device
         self.model = model
 
-    def inference(self, texts: [], sample_wav: str = None):
+    def inference(self, texts: str, sample_wav: str = None):
         if sample_wav is None:
+            sample_wav = os.path.join(os.path.dirname(os.path.abspath(__file__)), "zonos/examples/exampleaudio.mp3")
+        else:
             sample_wav = os.path.join(os.path.dirname(os.path.abspath(__file__)), "zonos/examples/exampleaudio.mp3")
 
         wav, sampling_rate = torchaudio.load(sample_wav)
@@ -27,7 +29,7 @@ class ZonosTTSModel(BaseModel):
 
         codes = self.model.generate(conditioning)
 
-        audio_path = os.path.join(AUDIO_PATH, f"zonostts_{int(time.time() * 1000)}.wav")
+        audio_path = os.path.join(AUDIO_PATH, f"zonos_tts_{int(time.time() * 1000)}.wav")
         wavs = self.model.autoencoder.decode(codes).cpu()
         torchaudio.save(audio_path, wavs[0], self.model.autoencoder.sampling_rate)
 
@@ -35,3 +37,4 @@ class ZonosTTSModel(BaseModel):
 
     def release(self):
         del self.model
+        del self.device

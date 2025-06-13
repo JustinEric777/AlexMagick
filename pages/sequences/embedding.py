@@ -47,10 +47,7 @@ how to implement quick sort in python?
         def update_results(input_texts, search_text, search_results, metric_value):
             items = results.value["data"]
             new_row = [input_texts, search_text, search_results, metric_value.strip()]
-            if len(items[0][0]) == 0 and len(items[0][1]) == 0:
-                items[0] = new_row
-            else:
-                items.append(new_row)
+            items.append(new_row)
             return items
 
         search_bt.click(text2embedding.generate, inputs=[text_inputs, search_input, model_version], outputs=[search_result, metric], queue=False).then(

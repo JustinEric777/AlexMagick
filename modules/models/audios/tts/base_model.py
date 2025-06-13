@@ -13,6 +13,7 @@ class BaseModel(metaclass=abc.ABCMeta):
     model: Any = None
     tokenizer: Any = None
     processor: Any = None
+    vocoder: Any = None
     device: Any = None
     dtype: Any = None
 

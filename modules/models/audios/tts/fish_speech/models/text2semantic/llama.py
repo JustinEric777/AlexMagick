@@ -187,7 +187,7 @@ class BaseTransformer(nn.Module):
             config.dim,
         )
         self.layers = nn.ModuleList(
-            TransformerBlock(config, use_sdpa=True) for _ in range(config.n_layer)
+            TransformerBlock(config, use_sdpa=False) for _ in range(config.n_layer)
         )
         self.norm = RMSNorm(config.dim, eps=config.norm_eps)
 
@@ -707,7 +707,7 @@ class TransformerBlock(nn.Module):
 
 
 class Attention(nn.Module):
-    def __init__(self, config: BaseModelArgs, use_sdpa: bool = True):
+    def __init__(self, config: BaseModelArgs, use_sdpa: bool = False):
         super().__init__()
         assert config.dim % config.n_head == 0
 

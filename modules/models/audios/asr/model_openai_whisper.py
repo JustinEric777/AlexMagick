@@ -1,6 +1,6 @@
 import torch
 import torchaudio
-from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor
+from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 from modules.models.audios.asr.base_model import BaseModel
 
 
@@ -17,42 +17,30 @@ class OpenAIWhisperModel(BaseModel):
         )
         processor = AutoProcessor.from_pretrained(model_path)
 
+        pipe = pipeline(
+            "automatic-speech-recognition",
+            model=model,
+            tokenizer=processor.tokenizer,
+            feature_extractor=processor.feature_extractor,
+            chunk_length_s=30,
+            torch_dtype=dtype,
+            device=device,
+        )
+
         self.device = device
         self.dtype = dtype
         self.model = model
+        self.pipeline = pipe
         self.processor = processor
 
     def generate(self, audio: str):
-        audio_info, sampling_rate = torchaudio.load(audio)
-        inputs = self.processor(
-            audio_info[0],
-            sampling_rate=16000,
-            return_tensors="pt",
-            truncation=False,
-            padding="longest",
-            return_attention_mask=True,
-        ).to(self.device, dtype=self.dtype)
+        audio, sampling_rate = torchaudio.load(audio)
+        result = self.pipeline(audio[0])
 
-        generate_kwargs = {
-            "max_new_tokens": 448,
-            "num_beams": 1,
-            "return_timestamps": True,
-            "do_sample": True
-        }
-
-        predict_ids = self.model.generate(
-            **inputs,
-            **generate_kwargs
-        )
-        predict_text = self.processor.batch_decode(
-            predict_ids,
-            skip_special_tokens=True,
-            decode_with_timestamps=False
-        )
-
-        return predict_text[0]
+        return result["text"]
 
     def release(self):
+        del self.pipeline
         del self.model
         del self.processor
 

@@ -18,6 +18,7 @@ def create_ui(args: dict):
                     placeholder="Enter message or upload file...",
                     show_label=False,
                     sources=["microphone", "upload"],
+                    stop_btn=True,
                 )
                 with gr.Row():
                     gr.Examples(

@@ -117,10 +117,7 @@ def create_ui(args: dict):
             mask_image = f"""<img src="{HOST_PREFIX}{image_mask_value}" style="width: 100px, height: auto" ></img>"""
             output_image = f"""<img src="{HOST_PREFIX}{result_image_value}" style="width: 100px, height: auto" ></img>"""
             new_row = [input_image, mask_image, positive_prompt_value, negative_prompt_value, output_image, metric_value.strip()]
-            if len(items[0][0]) == 0 and len(items[0][1]) == 0:
-                items[0] = new_row
-            else:
-                items.append(new_row)
+            items.append(new_row)
             return items
 
         generate_bt.click(generate, inputs=[image_base, image_mask, positive_prompt, negative_prompt, randomize_seed, seed, guidance_scale, num_inference_steps, width, height], outputs=[image_output, metric, seed], queue=False).then(

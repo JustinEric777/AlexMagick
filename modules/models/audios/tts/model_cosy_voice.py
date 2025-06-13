@@ -10,7 +10,7 @@ class CosyVoiceModel(BaseModel):
     def load_model(self, model_path: str, device: str):
         model = CosyVoice(model_path)
 
-        self.device = device
+        self.device = device.lower()
         self.model = model
 
     def inference(self, texts: [], sample_wav: str = None):

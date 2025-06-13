@@ -19,7 +19,7 @@ class ChatTTSModel(BaseModel):
             custom_path=model_path
         )
 
-        self.device = device
+        self.device = device.lower()
         self.model = model
 
     def inference(self, texts: [], sample_wav: str = None):

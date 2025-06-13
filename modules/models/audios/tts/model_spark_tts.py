@@ -1,4 +1,7 @@
 import re
+import os
+import time
+import soundfile as sf
 import torch
 from typing import Tuple
 from pathlib import Path
@@ -6,7 +9,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from sparktts.utils.file import load_config
 from sparktts.models.audio_tokenizer import BiCodecTokenizer
 from sparktts.utils.token_parser import LEVELS_MAP, GENDER_MAP, TASK_TOKEN_MAP
-from modules.models.audios.tts.base_model import BaseModel
+from modules.models.audios.tts.base_model import BaseModel, AUDIO_PATH
 
 
 class SparkTTSModel(BaseModel):
@@ -15,6 +18,7 @@ class SparkTTSModel(BaseModel):
         self.audio_tokenizer = None
 
     def load_model(self, model_path: str, device: str):
+        device = device.lower()
         configs = load_config(f"{model_path}/config.yaml")
         self.sample_rate = configs["sample_rate"]
 
@@ -105,7 +109,7 @@ class SparkTTSModel(BaseModel):
     @torch.no_grad()
     def inference(
             self,
-            text: str,
+            text: [],
             prompt_speech_path: Path = None,
             prompt_text: str = None,
             gender: str = None,
@@ -114,10 +118,11 @@ class SparkTTSModel(BaseModel):
             temperature: float = 0.8,
             top_k: float = 50,
             top_p: float = 0.95,
-    ) -> torch.Tensor:
+    ):
+        if prompt_speech_path is None:
+            prompt_speech_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cosyvoice/examples/zero_shot_prompt.wav")
         if gender is not None:
             prompt = self.process_prompt_control(gender, pitch, speed, text)
-
         else:
             prompt, global_token_ids = self.process_prompt(
                 text, prompt_speech_path, prompt_text
@@ -159,12 +164,15 @@ class SparkTTSModel(BaseModel):
             )
 
         # Convert semantic tokens back to waveform
-        wav = self.audio_tokenizer.detokenize(
+        wavs = self.audio_tokenizer.detokenize(
             global_token_ids.to(self.device).squeeze(0),
             pred_semantic_ids.to(self.device),
         )
 
-        return wav
+        audio_path = os.path.join(AUDIO_PATH, f"spark_tts_{int(time.time() * 1000)}.wav")
+        sf.write(audio_path, wavs, samplerate=16000)
+
+        return audio_path
 
     def release(self):
         del self.model

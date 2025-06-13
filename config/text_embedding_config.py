@@ -27,6 +27,7 @@ MODEL_LIST: Dict[str, Any] = {
                 "Yinka",
                 "Dmeta-embedding-zh",
                 "zpoint_large_embedding_zh"
+                "Qwen3-Embedding-0.6B"
             ]
         },
     }
