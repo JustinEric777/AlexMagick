@@ -5,7 +5,11 @@ from llama_cpp import Llama
 
 class DeepSeekLlamaCppModel(BaseModel):
     def load_model(self, model_path: str, device: str):
-        model = Llama(model_path=model_path, n_ctx=2048, n_threads=16)
+        model = Llama(
+            model_path=model_path,
+            n_ctx=2048,
+            n_threads=8
+        )
         self.model = model
 
     def generate_prompt(self, instruction: str):
@@ -37,13 +41,14 @@ class DeepSeekLlamaCppModel(BaseModel):
         for chunk in response:
             if "content" in chunk["choices"][0]["delta"]:
                 new_text = chunk["choices"][0]["delta"]["content"]
+
+                # 计算生成 token 速率
+                token_id = self.model.tokenize(new_text.encode("utf-8"), add_bos=False)
+                generated_tokens.extend(token_id)
+
                 print(new_text, end='', flush=True)
                 if len(new_text) == 0:
                     continue
-
-                # 计算生成token 速率
-                token_ids = self.tokenizer.encode(new_text, add_special_tokens=False)
-                generated_tokens.extend(token_ids)
 
                 if "<think>" in new_text:
                     new_text = " <span style='color: blue'>【深度思考】：</span> <br> <blockquote>"

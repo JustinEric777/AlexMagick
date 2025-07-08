@@ -7,6 +7,7 @@ from modules.models.sequences.llm.base_model import BaseModel
 
 class DeepSeekTransformerModel(BaseModel):
     def load_model(self, model_path: str, device: str):
+        torch.set_num_threads(8)
         tokenizer = AutoTokenizer.from_pretrained(
             model_path,
             trust_remote_code=True
@@ -15,7 +16,8 @@ class DeepSeekTransformerModel(BaseModel):
             model_path,
             trust_remote_code=True,
             torch_dtype=torch.bfloat16,
-            device_map="auto"
+            # torch_dtype=torch.float16,
+            device_map=device.lower()
         )
         model.generation_config = GenerationConfig.from_pretrained(
             model_path,
@@ -46,7 +48,7 @@ class DeepSeekTransformerModel(BaseModel):
             messages,
             add_generation_prompt=True,
             return_tensors="pt"
-        )
+        ).to(self.model.device)
 
         generate_input = {
             "input_ids": input_ids,

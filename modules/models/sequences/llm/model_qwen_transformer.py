@@ -13,8 +13,8 @@ class QwenTransformerModel(BaseModel):
         )
         model = AutoModelForCausalLM.from_pretrained(
             model_path,
-            device_map="cpu",
-            torch_dtype=torch.bfloat16,
+            device_map=device.lower(),
+            torch_dtype=torch.float16,
             low_cpu_mem_usage=True,
             trust_remote_code=True
         )
@@ -79,15 +79,27 @@ class QwenTransformerModel(BaseModel):
             token_ids = self.tokenizer.encode(new_text, add_special_tokens=False)
             generated_tokens.extend(token_ids)
 
-            bot_message += new_text
+            if "<think>" in new_text:
+                new_text = "<span style='color: blue'>【深度思考】：</span> <br> <blockquote>"
+            if "</think>" in new_text:
+                new_text = "</blockquote> <span style='color: green'>【推理结果】：</span> <br>"
 
-            end_time = time.time()
-            cost_time = round(end_time-start_time, 3)
-            words_count = len(bot_message)
-            single_word_cost_time = round((end_time-start_time)/len(bot_message), 3)
-            per_second_tokens = round(len(generated_tokens) / (end_time-start_time), 3)
+            if new_text != '<｜end▁of▁sentence｜>':
+                bot_message += new_text
+
+            if "<｜end▁of▁sentence｜>" in bot_message:
+                bot_message = bot_message.replace('<｜end▁of▁sentence｜>', '')
+                end_time = time.time()
+                cost_time = round(end_time-start_time, 3)
+                trim_message = bot_message.replace("<span style='color: blue'>【深度思考】：</span> <br> <blockquote>", "")
+                trim_message = trim_message.replace("</blockquote> <span style='color: green'>【推理结果】：</span> <br>", "").strip()
+
+                words_count = len(trim_message)
+                single_word_cost_time = round((end_time-start_time)/len(trim_message), 3)
+                per_second_tokens = round(len(generated_tokens) / (end_time-start_time), 3)
 
             yield bot_message, cost_time, words_count, single_word_cost_time, per_second_tokens
+
 
     def release(self):
         del self.model

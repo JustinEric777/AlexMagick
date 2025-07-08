@@ -53,10 +53,10 @@ MODEL_LIST: Dict[str, Any] = {
         "Qwen": {
             "model_provider_path": "modules.models.sequences.llm.model_qwen_transformer",
             "model_provider_name": "QwenTransformerModel",
-            "model_path": "/data/models/llm/pytorch/qwen",
+            "model_path": "/data/models/llm/pytorch/qwen3",
             "model_list": [
-                "Qwen2.5-1.5B-Instruct",
-                "Qwen2.5-3B-Instruct",
+                "Qwen3-14B",
+                "Qwen3-30B-A3B",
             ]
         }
     },
