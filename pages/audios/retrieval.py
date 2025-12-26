@@ -1,12 +1,11 @@
 import gradio as gr
 from pages.common import reload_model_ui, HOST_PREFIX
-from modules import audio2embedding
+from servers import audio2embedding_server
 
+audio2embedding = audio2embedding_server.AudioEmbeddingServer()
 
 def create_ui(args: dict):
-    audio2embedding.init_model(args)
-
-    with gr.Tab(label="Retrieval Model", id="audio2embedding_tab") as mt_tab:
+    with gr.Tab(label="Audio Retrieval Model", id="audio_retrieval_tab") as audio_retrieval_tab:
         with gr.Row():
             with gr.Column(scale=4):
                 with gr.Row():
@@ -19,7 +18,6 @@ def create_ui(args: dict):
                             waveform_color="#01C6FF",
                             waveform_progress_color="#0066B4",
                             skip_length=2,
-                            show_controls=False,
                         ),
                     )
                     search_result = gr.Textbox(label="Search Results", visible=False, lines=10, placeholder="Search Result ...",)
@@ -72,5 +70,5 @@ Sound of vaccum cleaner""",
 
         clear.click(lambda: "", None, [text_inputs, input_audios, search_result], queue=False)
 
-    mt_tab.select(audio2embedding.reload_model, [infer_arch, device, model_name, model_version], [infer_arch, device, model_name, model_version])
+    audio_retrieval_tab.select(audio2embedding.reload_model, [infer_arch, device, model_name, model_version], [infer_arch, device, model_name, model_version])
 

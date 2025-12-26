@@ -2,7 +2,9 @@ import gradio as gr
 import numpy as np
 import random
 from pages.common import reload_model_ui, HOST_PREFIX
-from modules import img2img
+from servers import img2img_server
+
+img2img = img2img_server.Img2ImgServer()
 
 MAX_SEED = np.iinfo(np.int32).max
 MAX_IMAGE_SIZE = 1024
@@ -19,9 +21,7 @@ def generate(image_input, positive_prompt, negative_prompt, randomize_seed, seed
 
 
 def create_ui(args: dict):
-    img2img.init_model(args)
-
-    with gr.Tab(label="Image2Image Model", id="image_image2image_tab") as image_img2img_tab:
+    with gr.Tab(label="Image2Image Model", id="image_img2img_tab") as image_img2img_tab:
         with gr.Row():
             with gr.Column(scale=4):
                 with gr.Row():

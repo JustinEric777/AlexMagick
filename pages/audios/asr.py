@@ -1,11 +1,10 @@
 import gradio as gr
 from pages.common import reload_model_ui, HOST_PREFIX
-from modules import asr
+from servers import asr_server
 
+asr = asr_server.ASRServer()
 
 def create_ui(args: dict):
-    asr.init_model(args)
-
     with gr.Tab("ASR Model", id="asr_tab") as asr_tab:
         with gr.Row():
             with gr.Column(scale=4):
@@ -18,7 +17,6 @@ def create_ui(args: dict):
                             waveform_color="#01C6FF",
                             waveform_progress_color="#0066B4",
                             skip_length=2,
-                            show_controls=False,
                         ),
                     )
                     text_output = gr.Textbox(label="VSR Output", lines=10, placeholder="Transcribe Text...", )

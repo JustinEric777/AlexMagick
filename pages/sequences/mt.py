@@ -1,11 +1,10 @@
 import gradio as gr
 from pages.common import reload_model_ui
-from modules import mt
+from servers import mt_server
 
+mt = mt_server.MtServer()
 
 def create_ui(args: dict):
-    mt.init_model(args)
-
     with gr.Tab(label="MT Model", id="mt_tab") as mt_tab:
         with gr.Row():
             with gr.Column(scale=4):

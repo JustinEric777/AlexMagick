@@ -9,8 +9,8 @@ from functools import lru_cache
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, '../../')))
 from modules import text2embedding
-from modules.vectorstores import FAISS
-from modules.vectorstores.docstore.document import Document
+from vectorstores import FAISS
+from vectorstores.docstore.document import Document
 from config.text_embedding_config import MODEL_LIST
 
 CACHED_VS_NUM = 100

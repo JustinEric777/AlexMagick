@@ -2,7 +2,9 @@ import gradio as gr
 import numpy as np
 import random
 from pages.common import reload_model_ui, HOST_PREFIX
-from modules import inpainting
+from servers import inpainting_server
+
+inpainting = inpainting_server.InpaintingServer()
 
 MAX_SEED = np.iinfo(np.int32).max
 MAX_IMAGE_SIZE = 1024
@@ -19,8 +21,6 @@ def generate(image_input, mask_image, positive_prompt, negative_prompt, randomiz
 
 
 def create_ui(args: dict):
-    inpainting.init_model(args)
-
     with gr.Tab(label="Inpainting Model", id="image_inpainting_tab") as image_inpainting_tab:
         with gr.Row():
             with gr.Column(scale=4):

@@ -1,11 +1,9 @@
 import gradio as gr
 from pages.common import reload_model_ui
-from modules import video2embedding
-
+from servers import video2embedding
+video2embedding = video2embedding.Video2EmbeddingServer()
 
 def create_ui(args: dict):
-    video2embedding.init_model(args)
-
     with gr.Tab(label="Video2Embedding Model", id="video2embedding_tab") as mt_tab:
         with gr.Row():
             with gr.Column(scale=4):

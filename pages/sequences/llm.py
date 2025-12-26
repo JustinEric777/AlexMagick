@@ -1,15 +1,15 @@
 import gradio as gr
 from pages.common import reload_model_ui
-from modules import llm
+from servers import llm_server
 
+# Initialize server instance instead of importing module directly
+llm = llm_server.LLMServer()
 
 def create_ui(args: dict):
-    llm.init_model(args)
-
     with gr.Tab(label="LLM Model", id="llm_tab") as llm_tab:
         with gr.Row():
             with gr.Column(scale=4):
-                chatbot = gr.Chatbot(height=500, type='messages', show_copy_button=True)
+                chatbot = gr.Chatbot(height=500)
                 msg = gr.Textbox(label="Chatbot Input", lines=5, placeholder="Shift + Enter Send Message...", )
                 with gr.Row():
                     gr.Examples(
@@ -48,24 +48,76 @@ def create_ui(args: dict):
                         slider_temp = gr.Slider(minimum=0, maximum=1, label="temperature", value=0.6)
                         slider_top_p = gr.Slider(minimum=0.5, maximum=1, label="top_p", value=0.95)
                         slider_context_times = gr.Slider(minimum=0, maximum=5, label="context times", value=0, step=2.0)
+                with gr.Row():
+                    with gr.Accordion("History", open=True):
+                        with gr.Row():
+                            page = gr.Number(label="page", value=1, precision=0)
+                            page_size = gr.Number(label="page size", value=10, precision=0)
+                            refresh = gr.Button("Refresh")
+                        history_list = gr.Dataframe(headers=["timestamp", "model", "arch", "device", "preview"], datatype=["number", "str", "str", "str", "str"], interactive=False)
+                        def fetch_history(page, page_size):
+                            limit = max(1, int(page_size))
+                            page = max(1, int(page))
+                            items_all = llm.history.list_recent(limit=limit * page)
+                            start = (page - 1) * limit
+                            items = items_all[start:start + limit]
+                            rows = []
+                            for it in items:
+                                md = it["metadata"]
+                                rows.append([it["timestamp"], md.get("model_name", ""), md.get("infer_arch", ""), md.get("device", ""), (it["content"] or "")[:120]])
+                            return rows
+                        refresh.click(fetch_history, [page, page_size], [history_list], queue=True)
 
         def user(user_message, history):
-            return "", history + [{"role": "user", "content": user_message}]
+            if history is None:
+                history = []
+            return "", history + [[user_message, None]]
+
+        def generate_wrapper(history, max_tokens, temperature, top_p, slider_context_times):
+            # history is in [[user, bot], ...] format
+            # Convert to list of dicts for LLM processing
+            messages = []
+            for u, b in history:
+                if u: messages.append({"role": "user", "content": u})
+                if b: messages.append({"role": "assistant", "content": b})
+            
+            # Call original generator
+            # The generator yields a list of messages: [{"role": "user", ...}, {"role": "assistant", ...}]
+            for updated_messages in llm.generate(messages, max_tokens, temperature, top_p, slider_context_times):
+                # Convert updated messages back to list of lists format for old Gradio Chatbot
+                new_history = []
+                current_pair = [None, None]
+                
+                for msg in updated_messages:
+                    if msg['role'] == 'user':
+                        if current_pair[0] is not None:
+                             new_history.append(current_pair)
+                             current_pair = [None, None]
+                        current_pair[0] = msg['content']
+                    elif msg['role'] == 'assistant':
+                        current_pair[1] = msg['content']
+                        new_history.append(current_pair)
+                        current_pair = [None, None]
+                
+                if current_pair[0] is not None or current_pair[1] is not None:
+                    new_history.append(current_pair)
+                    
+                yield new_history
 
         msg.submit(user, [msg, chatbot], [msg, chatbot], queue=True).then(
-            llm.generate,
+            generate_wrapper,
             [chatbot, max_tokens, slider_temp, slider_top_p, slider_context_times],
             chatbot,
             queue=True
         )
         sent_bt.click(user, [msg, chatbot], [msg, chatbot], queue=True).then(
-            llm.generate,
+            generate_wrapper,
             [chatbot, max_tokens, slider_temp, slider_top_p, slider_context_times],
             chatbot,
             queue=True
         )
         re_generate.click(
-            llm.generate,
+            generate_wrapper,
             [chatbot, max_tokens, slider_temp, slider_top_p, slider_context_times],
             chatbot,
             queue=True

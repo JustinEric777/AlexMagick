@@ -1,1 +1,0 @@
-from modules.vectorstores.faiss import FAISS

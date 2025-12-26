@@ -1,7 +1,7 @@
 import gradio as gr
 from pages.videos import embedding
-from modules import video2embedding
-
+from servers import video2embedding
+video2embedding = video2embedding.Video2EmbeddingServer()
 
 def reload_default_model():
     video2embedding.reload_model(default=True)

@@ -5,16 +5,16 @@ TASK_TYPE = "multimodal-mllm"
 MODEL_LIST: Dict[str, Any] = {
     "Pytorch": {
         "Qwen2.5-Omni": {
-            "model_provider_path": "modules.models.multimodals.llm.model_qwen_omni_transformer",
+            "model_provider_path": "core.models.multimodals.llm.model_qwen_omni_transformer",
             "model_provider_name": "QwenOmiTransformerModel",
             "model_path": "/data/models/llm/pytorch/qwen/",
             "model_list": [
-                "Qwen2.5-Omni-7B",
                 "Qwen2.5-Omni-3B",
+                "Qwen2.5-Omni-7B",
             ]
         },
         "Qwen2.5-Omni-GPTQ-4bit": {
-            "model_provider_path": "modules.models.multimodals.llm.model_qwen_omni_transformer_gptq",
+            "model_provider_path": "core.models.multimodals.llm.model_qwen_omni_transformer_gptq",
             "model_provider_name": "QwenOmiTransformerGPTQModel",
             "model_path": "/data/models/llm/pytorch/qwen/",
             "model_list": [
@@ -24,7 +24,7 @@ MODEL_LIST: Dict[str, Any] = {
     },
     "llama.cpp": {
         "Qwen2.5-Omni": {
-            "model_provider_path": "modules.models.multimodals.llm.model_qwen_omni_llama_cpp",
+            "model_provider_path": "core.models.multimodals.llm.model_qwen_omni_llama_cpp",
             "model_provider_name": "QwenOmiLLamaCppModel",
             "model_path": "/data/models/llm/llama.cpp/Qwen2.5-Omni",
             "model_list": [

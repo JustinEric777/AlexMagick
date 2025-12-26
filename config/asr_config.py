@@ -5,7 +5,7 @@ TASK_TYPE = "audio-asr"
 MODEL_LIST: Dict[str, Any] = {
     "Pytorch": {
         "OpenAI_Whisper": {
-            "model_provider_path": "modules.models.audios.asr.model_openai_whisper",
+            "model_provider_path": "core.models.audios.asr.model_openai_whisper",
             "model_provider_name": "OpenAIWhisperModel",
             "model_path": "/data/models/asr",
             "model_list": [
@@ -13,7 +13,7 @@ MODEL_LIST: Dict[str, Any] = {
             ]
         },
         "Ali_Paraformer": {
-            "model_provider_path": "modules.models.audios.asr.model_ali_paraformer",
+            "model_provider_path": "core.models.audios.asr.model_ali_paraformer",
             "model_provider_name": "AliParaformerModel",
             "model_path": "/data/models/asr",
             "model_list": [
@@ -21,8 +21,8 @@ MODEL_LIST: Dict[str, Any] = {
             ]
         },
         "Meta_Wev2Vec_Conformer": {
-            "model_provider_path": "modules.models.audios.asr.model_meta_wev2vec_conformer",
-            "model_provider_name": "MetaNLLBModel",
+            "model_provider_path": "core.models.audios.asr.model_meta_wev2vec_conformer",
+            "model_provider_name": "MetaWev2VecConformer",
             "model_path": "/data/models/asr",
             "model_list": [
                 "wav2vec2-conformer-rope-large-960h-ft"

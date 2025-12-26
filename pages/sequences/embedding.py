@@ -1,11 +1,10 @@
 import gradio as gr
 from pages.common import reload_model_ui
-from modules import text2embedding
+from servers import text2embedding_server
 
+text2embedding = text2embedding_server.TextEmbeddingServer()
 
 def create_ui(args: dict):
-    text2embedding.init_model(args)
-
     with gr.Tab(label="Text2Embedding Model", id="text2embedding_tab") as mt_tab:
         with gr.Row():
             with gr.Column(scale=4):

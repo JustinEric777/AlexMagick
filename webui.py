@@ -1,7 +1,12 @@
 import os
+import warnings
+# Filter pkg_resources deprecation warning from milvus_lite
+warnings.filterwarnings("ignore", category=UserWarning, module="milvus_lite")
+warnings.filterwarnings("ignore", message=".*pkg_resources is deprecated.*")
+
 import gradio as gr
 from shared import parser
-from pages import sequence, image, audio, video, multimodal
+from pages import sequence, image, audio, video, multimodal, home
 
 
 def gradio_default_setting():
@@ -42,21 +47,27 @@ def create_ui(params: dict):
     # default settings
     gradio_default_setting()
 
-    with gr.Blocks(
-        theme=gr.themes.Soft(font=[gr.themes.GoogleFont("Source Sans Pro"), "Arial", "sans-serif"]),
-        css=custom_css,
-    ) as demo:
+    with gr.Blocks() as demo:
         gr.Markdown("""<h1 style="display:block; width:100%; margin: 20px; font-size: 32px"><center>Alex Magick AI Assistant</center></h1>""")
 
         with gr.Tabs(selected=params["default_first_tab"]):
             # create_ui
+            with gr.Tab(label="Home", id="home_tab"):
+                home.create_ui()
+            
             sequence.create_ui(params)
             image.create_ui(params)
             audio.create_ui(params)
             video.create_ui(params)
             multimodal.create_ui(params)
 
-    demo.queue().launch(share=False, debug=True, server_name="0.0.0.0")
+    demo.queue().launch(
+        share=False,
+        debug=True,
+        server_name="0.0.0.0",
+        theme=gr.themes.Soft(font=[gr.themes.GoogleFont("Source Sans Pro"), "Arial", "sans-serif"]),
+        css=custom_css
+    )
 
 
 if __name__ == "__main__":

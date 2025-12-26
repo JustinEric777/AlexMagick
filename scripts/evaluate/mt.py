@@ -9,12 +9,6 @@ import sys
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, '../../')))
 from config.mt_config import MODEL_LIST
-from modules.models.sequences.mt.model_opus_mt import OpusMTModel
-from modules.models.sequences.mt.model_ali_csanmt import AliCSANMTModel
-from modules.models.sequences.mt.model_meta_mbart import MetaMBartModel
-from modules.models.sequences.mt.model_meta_m2m import MetaM2MModel
-from modules.models.sequences.mt.model_meta_nllb import MetaNLLBModel
-from modules.models.sequences.mt.model_google_t5 import GoogleT5Model
 
 def load_data():
     data_files = {
@@ -30,7 +24,7 @@ def load_models():
     for key, value in MODEL_LIST.items():
         model_class = value["model_provider_name"]
         model_path = value["model_path"]
-        model_provider_path = f'modules.{MODEL_LIST[key]["model_provider_path"]}'
+        model_provider_path = f'{MODEL_LIST[key]["model_provider_path"]}'
         mt_class_name = getattr(importlib.import_module(model_provider_path), model_class)
         mt_object = mt_class_name()
         mt_object.load_model(model_path)
@@ -84,7 +78,6 @@ if __name__ == "__main__":
                 }
                 print(json.dumps(generated_result, ensure_ascii=False))
                 writer.writerow(generated_result.values())
-
 
 
 

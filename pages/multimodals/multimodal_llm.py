@@ -1,15 +1,14 @@
 import gradio as gr
 from pages.common import reload_model_ui
-from modules import multimodal_llm
+from servers import multimodal_llm_server
 
+multimodal_llm = multimodal_llm_server.MultimodalLLMServer()
 
 def create_ui(args: dict):
-    multimodal_llm.init_model(args)
-
     with gr.Tab(label="MultiModal LLM Model", id="mllm_tab") as mllm_tab:
         with gr.Row():
             with gr.Column(scale=4):
-                chatbot = gr.Chatbot(height=500, type='messages', show_copy_button=True)
+                chatbot = gr.Chatbot(height=500)
                 msg = gr.MultimodalTextbox(
                     label="Chatbot Input",
                     lines=1,
@@ -62,15 +61,58 @@ def create_ui(args: dict):
                         slider_context_times = gr.Slider(minimum=0, maximum=5, label="context times", value=0, step=2.0)
 
         def user(message, history):
+            if history is None: history = []
+            
+            # Add files as separate messages
             for x in message["files"]:
-                history.append({"role": "user", "content": {"path": x}})
-            if message["text"] is not None:
+                # For Gradio UI (type="messages"), we pass the path directly.
+                # It will handle rendering.
+                history.append({"role": "user", "content": x})
+            
+            if message["text"]:
                 history.append({"role": "user", "content": message["text"]})
 
             return gr.MultimodalTextbox(value=None, interactive=False), history
 
+        def generate_wrapper(history, max_tokens, temperature, top_p, slider_context_times, return_audio):
+            # history is in UI format (List[Dict] with "content" as string or path string)
+            
+            # Convert UI History -> Server History
+            # Server expects {"content": {"path": ...}} for files
+            server_messages = []
+            for msg in history:
+                content = msg["content"]
+                role = msg["role"]
+                
+                # Check if content is a file path
+                if isinstance(content, str) and (content.endswith('.jpg') or content.endswith('.jpeg') or content.endswith('.png') or content.endswith('.wav') or content.endswith('.mp4')):
+                     server_messages.append({"role": role, "content": {"path": content}})
+                else:
+                     server_messages.append({"role": role, "content": content})
+
+            # Call generator
+            for server_history in multimodal_llm.generate(server_messages, max_tokens, temperature, top_p, slider_context_times, return_audio):
+                
+                # Convert Server History -> UI History
+                ui_history = []
+                for msg in server_history:
+                    content = msg["content"]
+                    role = msg["role"]
+                    
+                    # If content is {"path": ...}, extract it for UI
+                    if isinstance(content, dict) and "path" in content:
+                        ui_content = content["path"]
+                        # For audio returned by server, it might be in a separate message.
+                        # We append it.
+                    else:
+                        ui_content = content
+                    
+                    ui_history.append({"role": role, "content": ui_content})
+                
+                yield ui_history
+
         msg.submit(user, [msg, chatbot], [msg, chatbot], queue=True).then(
-            multimodal_llm.generate,
+            generate_wrapper,
             [chatbot, max_tokens, slider_temp, slider_top_p, slider_context_times, return_audio],
             chatbot,
             queue=True

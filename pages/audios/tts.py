@@ -1,11 +1,10 @@
 import gradio as gr
 from pages.common import reload_model_ui, HOST_PREFIX
-from modules import tts
+from servers import tts_server
 
+tts = tts_server.TTSServer()
 
 def create_ui(args: dict):
-    tts.init_model(args)
-
     with gr.Tab("TTS Model", id="tts_tab") as tts_tab:
         with gr.Row():
             with gr.Column(scale=4):
@@ -19,7 +18,6 @@ def create_ui(args: dict):
                             waveform_color="#01C6FF",
                             waveform_progress_color="#0066B4",
                             skip_length=2,
-                            show_controls=False,
                         ),
                     )
                 with gr.Row():

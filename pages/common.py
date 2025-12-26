@@ -43,32 +43,47 @@ def reload_model_ui(obj, args: dict):
 
     with gr.Row():
         with gr.Accordion("model inference setting", open=True):
+            infer_arch_list = obj.get_infer_arch_list()
+            default_infer_arch = args["infer_arch"] if args["infer_arch"] in infer_arch_list else (infer_arch_list[0] if infer_arch_list else None)
+
             infer_arch = gr.Radio(
                 label="infer arch",
                 info="please choose a arch for inference",
-                choices=obj.get_infer_arch_list(),
-                value=args["infer_arch"] if args["infer_arch"] in obj.get_infer_arch_list() else obj.get_infer_arch_list()[0],
+                choices=infer_arch_list,
+                value=default_infer_arch,
                 interactive=True
             )
+
+            device_list = obj.get_arch_device_list(default_infer_arch) if default_infer_arch else []
+            default_device = args["device"] if args["device"] in device_list else (device_list[0] if device_list else None)
+
             device = gr.Dropdown(
                 label="infer device",
                 info="please choose model infer device",
-                choices=obj.get_arch_device_list(infer_arch.value),
-                value=args["device"] if args["device"] in obj.get_arch_device_list(infer_arch.value) else obj.get_arch_device_list(infer_arch.value)[0],
+                choices=device_list,
+                value=default_device,
                 interactive=True
             )
+
+            model_name_list = obj.get_arch_model_list(default_infer_arch) if default_infer_arch else []
+            default_model_name = args["model_name"] if args["model_name"] in model_name_list else (model_name_list[0] if model_name_list else None)
+
             model_name = gr.Dropdown(
                 label="model name",
                 info="please choose model name",
-                choices=obj.get_arch_model_list(infer_arch.value),
-                value=args["model_name"] if args["model_name"] in obj.get_arch_model_list(infer_arch.value) else obj.get_arch_model_list(infer_arch.value)[0],
+                choices=model_name_list,
+                value=default_model_name,
                 interactive=True
             )
+
+            model_version_list = obj.get_model_list(default_infer_arch, default_model_name) if default_infer_arch and default_model_name else []
+            default_model_version = args["model_version"] if args["model_version"] in model_version_list else (model_version_list[0] if model_version_list else None)
+
             model_version = gr.Dropdown(
                 label="model version",
                 info="please choose model version",
-                choices=obj.get_model_list(infer_arch.value, model_name.value),
-                value=args["model_version"] if args["model_version"] in obj.get_model_list(infer_arch.value, model_name.value) else obj.get_model_list(infer_arch.value, model_name.value)[0],
+                choices=model_version_list,
+                value=default_model_version,
                 interactive=True
             )
     with gr.Row():
