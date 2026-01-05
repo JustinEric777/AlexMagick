@@ -1,6 +1,6 @@
 import time
 from core.models.multimodals.llm.base_model import BaseModel
-from core.models.backends.llamacpp import LlamaCppBackend
+from core.models.backends.loader import BackendLoader
 
 
 def format_history(history: list):
@@ -13,8 +13,8 @@ def format_history(history: list):
 
 class QwenOmiLLamaCppModel(BaseModel):
     def load_model(self, model_path: str, device: str, backend: str = "llama_cpp", **kwargs):
-        self.backend = LlamaCppBackend(device=device)
-        self.backend.load_text_generation(model_path, n_ctx=kwargs.get("n_ctx", 2048))
+        # Explicitly use llama_cpp backend, but via loader
+        self.backend = BackendLoader.load(backend, device, model_path, **kwargs)
         self.model = self.backend.model
 
     def generate_prompt(self, instruction: str):

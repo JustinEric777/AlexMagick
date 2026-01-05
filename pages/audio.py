@@ -3,7 +3,7 @@ from pages.audios import asr, tts, retrieval
 
 
 def reload_default_model():
-    asr.asr.reload_model(default=True)
+    asr.asr.load_model(default=True)
 
 
 def create_ui(params: dict):

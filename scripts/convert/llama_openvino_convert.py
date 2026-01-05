@@ -18,7 +18,7 @@ def load_model(model_path: str):
     tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
     model = AutoModelForCausalLM.from_pretrained(model_path,
                                                  device_map="cpu",
-                                                 torch_dtype=torch.float32,
+                                                 dtype=torch.float32,
                                                  low_cpu_mem_usage=True,
                                                  trust_remote_code=True)
     model.eval()

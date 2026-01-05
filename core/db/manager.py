@@ -4,20 +4,23 @@ import time
 import os
 from typing import Dict, Any, List, Optional
 from threading import Lock
+from config.storage_config import SQLITE_DB_PATH
 
 class DBManager:
     _instance = None
     _lock = Lock()
     
-    def __new__(cls, db_path="tasks.db"):
+    def __new__(cls, db_path=None):
         with cls._lock:
             if cls._instance is None:
                 cls._instance = super(DBManager, cls).__new__(cls)
-                cls._instance._init_db(db_path)
+                cls._instance._init_db(db_path or SQLITE_DB_PATH)
             return cls._instance
 
     def _init_db(self, db_path):
         self.db_path = db_path
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         self._create_table()
 
     def _get_conn(self):

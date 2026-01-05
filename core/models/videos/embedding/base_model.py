@@ -1,16 +1,9 @@
 import abc
 from typing import Any
+from core.models.loader import BaseModel as LoaderBaseModel
 
 
-class BaseModel(metaclass=abc.ABCMeta):
-    model: Any = None
-    tokenizer: Any = None
-    device: Any = None
-
-    @abc.abstractmethod
-    def load_model(self, model_path: str, device: str):
-        pass
-
+class BaseModel(LoaderBaseModel):
     @abc.abstractmethod
     def text_encode(self, text: str):
         pass

@@ -15,7 +15,7 @@ class MiniCPMTransformerModel(BaseModel):
             model_path,
             trust_remote_code=True,
             attn_implementation='sdpa',
-            torch_dtype=torch.bfloat16,
+            dtype=torch.bfloat16,
         )
         model.eval()
         streamer = TextIteratorStreamer(tokenizer,

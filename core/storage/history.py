@@ -1,5 +1,4 @@
 import json
-import time
 import uuid
 from typing import Any, Dict, List
 
@@ -55,4 +54,3 @@ class HistoryStore:
             )
         items.sort(key=lambda x: x["timestamp"], reverse=True)
         return items
-

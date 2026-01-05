@@ -9,7 +9,7 @@ from vllm.config import ModelConfig, VllmConfig
 from vllm.config.load import LoadConfig
 from vllm.logger import init_logger
 from vllm.model_executor.model_loader.utils import (
-    initialize_model, process_weights_after_loading, set_default_torch_dtype)
+    initialize_model, process_weights_after_loading, set_default_dtype)
 
 logger = init_logger(__name__)
 
@@ -40,7 +40,7 @@ class BaseModelLoader(ABC):
         load_device = device_config.device if load_config.device is None else \
                       load_config.device
         target_device = torch.device(load_device)
-        with set_default_torch_dtype(model_config.dtype):
+        with set_default_dtype(model_config.dtype):
             with target_device:
                 model = initialize_model(vllm_config=vllm_config,
                                          model_config=model_config)

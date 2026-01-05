@@ -5,8 +5,7 @@ from typing import Any, Iterable, Optional
 
 
 class BaseModel(ABC):
-    """抽象基类：统一模型生命周期与推理接口，贴近 vLLM 风格。
-
+    """抽象基类：统一模型生命周期与推理接口
     最小约束：
     - 实现 `load()` 完成权重与资源初始化
     - 实现 `generate()` 文本生成/推理入口（可按需覆盖为具体任务）

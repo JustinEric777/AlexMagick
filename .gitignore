@@ -1,10 +1,14 @@
 .idea
 .idea/*
-tests/*
+.venv
+.venv/*
+.cursor
+.vercel
+.vercel/*
 .DS_Store
+tests/*
 __pycache__
 */__pycache__
 scripts/datasets/*
-vector_store/*
-stroage/*
+storage/*
 db/*

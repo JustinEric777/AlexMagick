@@ -12,8 +12,8 @@ from .base import BackendRunner
 class TorchBackend(BackendRunner):
     def load_text_generation(self, model_name_or_path: str, **kwargs: Any) -> None:
         # Default dtype logic if not provided in kwargs
-        if "torch_dtype" not in kwargs:
-            kwargs["torch_dtype"] = torch.float16 if (kwargs.pop("fp16", True) and torch.cuda.is_available()) else torch.float32
+        if "dtype" not in kwargs:
+            kwargs["dtype"] = torch.float16 if (kwargs.pop("fp16", True) and torch.cuda.is_available()) else torch.float32
         
         # Handling specific kwargs that might conflict or need separate handling
         trust_remote_code = kwargs.get("trust_remote_code", False)

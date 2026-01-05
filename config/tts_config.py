@@ -1,6 +1,6 @@
 from typing import Dict, Any
 
-TASK_TYPE = "audio-tts"
+TASK_TYPE = "tts"
 
 MODEL_LIST: Dict[str, Any] = {
     "Pytorch": {
@@ -67,6 +67,14 @@ MODEL_LIST: Dict[str, Any] = {
             "model_path": "/data/models/tts",
             "model_list": [
                 "Zonos-v0.1-transformer"
+            ]
+        },
+        "NeuTTS-Air": {
+            "model_provider_path": "core.models.audios.tts.model_neutts",
+            "model_provider_name": "NeuTTSModel",
+            "model_path": "/data/models/tts",
+            "model_list": [
+                "neutts-air"
             ]
         },
         "Dia-TTS": {

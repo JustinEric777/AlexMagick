@@ -4,9 +4,26 @@ HOST_PREFIX = "/gradio_api/file="
 GENERATE_TTS_AUDIO_PATH = "storage/audio/tts"
 
 
+def create_audio_player(audio_path):
+    """Generate HTML audio player for a given file path."""
+    if not audio_path:
+        return ""
+    return f""" <audio controls>
+                    <source src="{HOST_PREFIX}{audio_path}" type="audio/wav">
+                </audio>"""
+
+
+def create_image_html(image_path, width="100px", height="auto"):
+    """Generate HTML image tag for a given file path."""
+    if not image_path:
+        return ""
+    return f"""<img src="{HOST_PREFIX}{image_path}" style="width: {width}; height: {height}" ></img>"""
+
+
+
 def reload_model_ui(obj, args: dict):
     def reload_model(arch: str, device: str, model: str, version: str):
-        return obj.reload_model(arch, device, model, version)
+        return obj.load_model(arch, device, model, version)
 
     def update_model_list(arch: str, model: str):
         model_list = obj.get_model_list(arch, model)
@@ -95,3 +112,27 @@ def reload_model_ui(obj, args: dict):
 
     return infer_arch, device, model_name, model_version
 
+
+def create_standard_page(server, args, render_main_ui, render_params_ui=None, tab_label="Model", tab_id=None):
+    """
+    Standard page layout builder.
+    """
+    with gr.Tab(tab_label, id=tab_id) as tab:
+        with gr.Row():
+            # Left Column: Main UI
+            with gr.Column(scale=4):
+                render_main_ui()
+                
+            # Right Column: Model Settings
+            with gr.Column(scale=1):
+                infer_arch, device, model_name, model_version = reload_model_ui(server, args)
+                if render_params_ui:
+                     with gr.Row():
+                          render_params_ui()
+                
+        # Bind Tab Select Event
+        tab.select(
+            server.load_model, 
+            [infer_arch, device, model_name, model_version], 
+            [infer_arch, device, model_name, model_version]
+        )

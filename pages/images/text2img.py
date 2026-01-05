@@ -1,7 +1,7 @@
 import gradio as gr
 import numpy as np
 import random
-from pages.common import reload_model_ui, HOST_PREFIX
+from pages.common import reload_model_ui, create_image_html, HOST_PREFIX
 from servers import text2img_server
 
 text2img = text2img_server.Text2ImgServer()
@@ -78,6 +78,7 @@ def create_ui(args: dict):
                             maximum=MAX_IMAGE_SIZE,
                             step=64,
                             value=1024,
+                            interactive=True
                         )
                         height = gr.Slider(
                             label="Height",
@@ -85,6 +86,7 @@ def create_ui(args: dict):
                             maximum=MAX_IMAGE_SIZE,
                             step=64,
                             value=1024,
+                            interactive=True
                         )
                         guidance_scale = gr.Slider(
                             label="Guidance scale",
@@ -103,7 +105,7 @@ def create_ui(args: dict):
 
         def update_results(positive_prompt_value, negative_prompt_value, result_image_value, metric_value):
             items = results.value["data"]
-            image = f"""<img src="{HOST_PREFIX}{result_image_value}" style="width: 100px, height: auto" ></img>"""
+            image = create_image_html(result_image_value)
             new_row = [positive_prompt_value, negative_prompt_value, image, metric_value.strip()]
             items.append(new_row)
             return items
@@ -113,5 +115,5 @@ def create_ui(args: dict):
         )
         clear.click(lambda: None, None, [positive_prompt, positive_prompt, image_output, results], queue=False)
 
-    image_text2img_tab.select(text2img.reload_model, [infer_arch, device, model_name, model_version], [infer_arch, device, model_name, model_version])
+    image_text2img_tab.select(text2img.load_model, [infer_arch, device, model_name, model_version], [infer_arch, device, model_name, model_version])
 

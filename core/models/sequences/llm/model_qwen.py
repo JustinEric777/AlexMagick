@@ -1,26 +1,25 @@
 import time
-from typing import Any
 from core.models.sequences.llm.base_model import BaseModel
-from core.models.backends.torch import TorchBackend
+from core.models.backends.loader import BackendLoader
+
 
 class QwenModel(BaseModel):
     def load_model(self, model_path: str, device: str, backend: str = "transformer", **kwargs):
         # Qwen currently mainly supports transformer backend in existing code, 
         # but structured to support others if added.
         if backend == "transformer" or backend == "pytorch":
-            self.backend = TorchBackend(device=device)
             # Default Qwen torch params
-            if "torch_dtype" not in kwargs:
+            if "dtype" not in kwargs:
                 import torch
-                kwargs["torch_dtype"] = torch.float16
+                kwargs["dtype"] = torch.float16
             kwargs.setdefault("trust_remote_code", True)
             kwargs.setdefault("low_cpu_mem_usage", True)
             if device != "cpu":
                 kwargs.setdefault("device_map", device.lower())
-        else:
-            # Fallback or raise
-             raise ValueError(f"Unsupported backend for Qwen: {backend}")
-
+        
+        # Use Loader to get backend instance (lazy import happens inside)
+        self.backend = BackendLoader.get_backend(backend, device)
+        
         self.backend.load_text_generation(model_path, **kwargs)
         self.model = self.backend.model
         self.tokenizer = self.backend.tokenizer

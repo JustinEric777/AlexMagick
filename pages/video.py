@@ -1,10 +1,12 @@
 import gradio as gr
 from pages.videos import embedding
-from servers import video2embedding
-video2embedding = video2embedding.Video2EmbeddingServer()
+from servers.video2embedding_server import Video2EmbeddingServer
+
+video2embedding = Video2EmbeddingServer()
+
 
 def reload_default_model():
-    video2embedding.reload_model(default=True)
+    video2embedding.load_model(default=True)
 
 
 def create_ui(params: dict):

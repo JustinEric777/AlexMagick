@@ -82,7 +82,7 @@ class QwenOmiTransformerModel(BaseModel):
         self.model = Qwen2_5OmniModel.from_pretrained(
             model_path,
             device_map=device.lower(),
-            torch_dtype="auto",
+            dtype="auto",
             enable_audio_output=True,
             low_cpu_mem_usage=True,
             trust_remote_code=True
@@ -90,7 +90,7 @@ class QwenOmiTransformerModel(BaseModel):
         self.processor = Qwen2_5OmniProcessor.from_pretrained(
             model_path,
             device_map=device.lower(),
-            torch_dtype="auto",
+            dtype="auto",
             low_cpu_mem_usage=True,
             trust_remote_code=True
         )

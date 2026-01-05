@@ -10,7 +10,7 @@ class VibeVoiceModel(BaseModel):
     def load_model(self, model_path: str, device: str):
         model = VibeVoiceForConditionalGenerationInference.from_pretrained(
             model_path,
-            torch_dtype=torch.bfloat16,
+            dtype=torch.bfloat16,
             device_map=device.lower(),
             attn_implementation="sdpa",
         )

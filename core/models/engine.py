@@ -4,15 +4,14 @@ import gc
 import torch
 from typing import Any, Iterable, Optional
 
-from ..logger.logger import get_logger
-from .context import ModelContext
-from .register import ModelFactory
+from core.log.logger import get_logger
+from core.models.context import ModelContext
+from core.models.register import ModelFactory
 
 
 @get_logger("ModelEngine")
 class ModelEngine:
-    """统一的模型加载与推理引擎，接口贴近 vLLM 用户体验。
-
+    """统一的模型加载与推理引擎
     用法：
         engine = ModelEngine(model_type="llm", model_name_or_path="Qwen/Qwen2")
         outputs = engine.generate(["你好", "介绍一下你自己"])
@@ -74,5 +73,3 @@ class ModelEngine:
             
             if ModelEngine._current_engine == self:
                 ModelEngine._current_engine = None
-
-

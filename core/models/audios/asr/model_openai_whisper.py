@@ -5,16 +5,22 @@ from core.models.audios.asr.base_model import BaseModel
 
 
 class OpenAIWhisperModel(BaseModel):
-    def load_model(self, model_path: str, device: str):
-        device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+    def load_model(self, model_path: str, device: str, **kwargs):
+        # Prefer passed device, fallback to auto detection if not specified or "AUTO"
+        if not device or device == "AUTO":
+             device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        
+        device = device.lower()
+             
+        dtype = torch.bfloat16 if torch.cuda.is_available() and device != "cpu" else torch.float32
 
         model = AutoModelForSpeechSeq2Seq.from_pretrained(
             model_path,
-            torch_dtype=dtype,
+            dtype=dtype,
             low_cpu_mem_usage=True,
             use_safetensors=True
-        )
+        ).to(device)
+
         processor = AutoProcessor.from_pretrained(model_path)
 
         pipe = pipeline(
@@ -23,7 +29,7 @@ class OpenAIWhisperModel(BaseModel):
             tokenizer=processor.tokenizer,
             feature_extractor=processor.feature_extractor,
             chunk_length_s=30,
-            torch_dtype=dtype,
+            dtype=dtype,
             device=device,
         )
 
@@ -33,7 +39,7 @@ class OpenAIWhisperModel(BaseModel):
         self.pipeline = pipe
         self.processor = processor
 
-    def generate(self, audio: str):
+    def _generate(self, audio: str):
         audio, sampling_rate = torchaudio.load(audio)
         result = self.pipeline(audio[0])
 

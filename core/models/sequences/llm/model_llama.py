@@ -1,20 +1,15 @@
 import time
 from typing import Any
 from core.models.sequences.llm.base_model import BaseModel
-from core.models.backends.torch import TorchBackend
-from core.models.backends.llamacpp import LlamaCppBackend
-from core.models.backends.openvino import OpenVINOBackend
-from core.models.backends.onnx import ONNXRuntimeBackend
-from core.models.backends.ipexllm import IpexLLMBackend
+from core.models.backends.loader import BackendLoader
 
 class LlamaModel(BaseModel):
     def load_model(self, model_path: str, device: str, backend: str = "transformer", **kwargs):
         if backend == "transformer" or backend == "pytorch":
-            self.backend = TorchBackend(device=device)
             # Default Llama torch params
-            if "torch_dtype" not in kwargs:
+            if "dtype" not in kwargs:
                 import torch
-                kwargs["torch_dtype"] = torch.bfloat16
+                kwargs["dtype"] = torch.bfloat16
             kwargs.setdefault("trust_remote_code", True)
             kwargs.setdefault("low_cpu_mem_usage", True)
             if device == "cpu":
@@ -23,24 +18,23 @@ class LlamaModel(BaseModel):
                  kwargs.setdefault("device_map", device.lower())
 
         elif backend == "llama_cpp":
-            self.backend = LlamaCppBackend(device=device)
             # kwargs passed to Llama(...)
+            pass
             
         elif backend == "openvino":
-            self.backend = OpenVINOBackend(device=device)
+            pass
             
         elif backend == "onnxruntime" or backend == "onnx":
-            self.backend = ONNXRuntimeBackend(device=device)
-            if "torch_dtype" not in kwargs:
+            if "dtype" not in kwargs:
                 import torch
-                kwargs["torch_dtype"] = torch.bfloat16
+                kwargs["dtype"] = torch.bfloat16
             kwargs.setdefault("trust_remote_code", True)
             
         elif backend == "ipex_llm" or backend == "ipex":
-            self.backend = IpexLLMBackend(device=device)
+            pass
             
-        else:
-            raise ValueError(f"Unsupported backend for Llama: {backend}")
+        # Use Loader to get backend instance (lazy import happens inside)
+        self.backend = BackendLoader.get_backend(backend, device)
 
         self.backend.load_text_generation(model_path, **kwargs)
         self.model = self.backend.model

@@ -1,12 +1,11 @@
 import time
 import uuid
-import psutil
 import functools
 import traceback
-import os
 import inspect
 from typing import Generator
 from .db.manager import DBManager
+from .monitor.system import SystemMonitor
 
 class TaskMonitor:
     def __init__(self, task_type: str, description: str = ""):
@@ -28,12 +27,9 @@ class TaskMonitor:
                 "kwargs": {k: str(v) for k, v in kwargs.items()}
             }
             
-            # Initial Resource Usage
-            process = psutil.Process(os.getpid())
-            start_cpu = process.cpu_percent()
-            start_mem = process.memory_info().rss / 1024 / 1024 # MB
-            
-            start_time = time.time()
+            # Start Tracking
+            tracker = SystemMonitor.Tracker()
+            tracker.__enter__()
             
             # Insert Initial Record
             self.db.insert_task({
@@ -43,16 +39,14 @@ class TaskMonitor:
                 "inputs": inputs,
                 "outputs": {},
                 "status": "Running",
-                "start_time": start_time,
+                "start_time": tracker.start_time,
                 "cpu_usage": 0,
-                "memory_usage": start_mem
+                "memory_usage": tracker.peak_mem
             })
             
             def record_success(output_val):
-                end_time = time.time()
-                duration = end_time - start_time
-                end_cpu = process.cpu_percent()
-                end_mem = process.memory_info().rss / 1024 / 1024
+                tracker.__exit__(None, None, None)
+                stats = tracker.get_stats()
                 
                 output_str = str(output_val)
                 # Truncate very long output for DB storage
@@ -61,27 +55,25 @@ class TaskMonitor:
                 self.db.update_task(task_id, {
                     "outputs": output_data,
                     "status": "Success",
-                    "end_time": end_time,
-                    "duration": duration,
-                    "cpu_usage": end_cpu,
-                    "memory_usage": end_mem
+                    "end_time": tracker.end_time,
+                    "duration": tracker.end_time - tracker.start_time,
+                    "cpu_usage": stats["peak_cpu"],
+                    "memory_usage": stats["peak_mem"]
                 })
 
             def record_failure(error_val):
-                end_time = time.time()
-                duration = end_time - start_time
-                end_cpu = process.cpu_percent()
-                end_mem = process.memory_info().rss / 1024 / 1024
+                tracker.__exit__(Exception, error_val, None)
+                stats = tracker.get_stats()
                 
                 self.db.update_task(task_id, {
                     "status": "Failed",
-                    "end_time": end_time,
-                    "duration": duration,
-                    "cpu_usage": end_cpu,
-                    "memory_usage": end_mem,
+                    "end_time": tracker.end_time,
+                    "duration": tracker.end_time - tracker.start_time,
+                    "cpu_usage": stats["peak_cpu"],
+                    "memory_usage": stats["peak_mem"],
                     "error_msg": str(error_val) + "\n" + traceback.format_exc()
                 })
-
+            
             try:
                 result = func(*args, **kwargs)
                 
@@ -91,6 +83,8 @@ class TaskMonitor:
                         try:
                             for item in result:
                                 last_val = item
+                                # Optional: Sample periodically during generation
+                                tracker.sample() 
                                 yield item
                             record_success(last_val)
                         except Exception as e:

@@ -18,7 +18,7 @@ class IpexLLMBackend(BackendRunner):
         # Default params from original implementation
         load_kwargs = {
             "device_map": "auto",
-            "torch_dtype": torch.bfloat16,
+            "dtype": torch.bfloat16,
             "load_in_low_bit": "bf16",
             "low_cpu_mem_usage": True,
             "trust_remote_code": True

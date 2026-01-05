@@ -1,6 +1,5 @@
 import time
-import json
-from typing import Any
+
 
 def get_format_metric(metric_info: dict):
     metric_info_line = ""

@@ -6,8 +6,8 @@ from core.models.images.text2img.base_model import BaseModel
 
 class ModelStableDiffusion3(BaseModel):
     def load_model(self, model_path: str, device: str):
-        device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+        # device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        dtype = torch.float16 if torch.cuda.is_available() and device != "cpu" else torch.float32
 
         text_encoder = T5EncoderModel.from_pretrained(
             model_path,
@@ -26,7 +26,7 @@ class ModelStableDiffusion3(BaseModel):
         self.pipline = pipline
         self.device = device
 
-    def generate(self, positive_prompt, negative_prompt, seed, guidance_scale, num_inference_steps, height, width):
+    def _generate(self, positive_prompt, negative_prompt, seed, guidance_scale, num_inference_steps, height, width):
         image = self.pipline(
             prompt=positive_prompt,
             negative_prompt=negative_prompt,

@@ -1,25 +1,21 @@
 import os
-import warnings
-# Filter pkg_resources deprecation warning from milvus_lite
-warnings.filterwarnings("ignore", category=UserWarning, module="milvus_lite")
-warnings.filterwarnings("ignore", message=".*pkg_resources is deprecated.*")
-
 import gradio as gr
 from shared import parser
 from pages import sequence, image, audio, video, multimodal, home
+import envs
 
 
 def gradio_default_setting():
     # close analytics_enabled for gradio
-    os.environ["GRADIO_ANALYTICS_ENABLED"] = "False"
+    os.environ["GRADIO_ANALYTICS_ENABLED"] = envs.GRADIO_ANALYTICS_ENABLED
     # tmp dir
-    os.environ["GRADIO_TEMP_DIR"] = "storage"
+    os.environ["GRADIO_TEMP_DIR"] = envs.GRADIO_TEMP_DIR
     # allow access paths
-    os.environ["GRADIO_ALLOWED_PATHS"] = "storage"
+    os.environ["GRADIO_ALLOWED_PATHS"] = envs.GRADIO_ALLOWED_PATHS
     # examples cache
-    os.environ["GRADIO_CACHE_EXAMPLES"] = "False"
+    os.environ["GRADIO_CACHE_EXAMPLES"] = envs.GRADIO_CACHE_EXAMPLES
     # example cache dir
-    os.environ["GRADIO_EXAMPLES_CACHE"] = "pages/examples/"
+    os.environ["GRADIO_EXAMPLES_CACHE"] = envs.GRADIO_EXAMPLES_CACHE
     # cache mode
     # os.environ["GRADIO_CACHE_MODE"] = "False"
 
@@ -51,10 +47,7 @@ def create_ui(params: dict):
         gr.Markdown("""<h1 style="display:block; width:100%; margin: 20px; font-size: 32px"><center>Alex Magick AI Assistant</center></h1>""")
 
         with gr.Tabs(selected=params["default_first_tab"]):
-            # create_ui
-            with gr.Tab(label="Home", id="home_tab"):
-                home.create_ui()
-            
+            home.create_ui(params)
             sequence.create_ui(params)
             image.create_ui(params)
             audio.create_ui(params)
@@ -62,9 +55,9 @@ def create_ui(params: dict):
             multimodal.create_ui(params)
 
     demo.queue().launch(
-        share=False,
-        debug=True,
-        server_name="0.0.0.0",
+        share=envs.GRADIO_SHARE,
+        debug=envs.GRADIO_DEBUG,
+        server_name=envs.GRADIO_SERVER_NAME,
         theme=gr.themes.Soft(font=[gr.themes.GoogleFont("Source Sans Pro"), "Arial", "sans-serif"]),
         css=custom_css
     )

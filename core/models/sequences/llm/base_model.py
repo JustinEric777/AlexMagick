@@ -1,16 +1,10 @@
 import abc
 from typing import Any
+from core.models.loader import BaseModel as LoaderBaseModel
 
 
-class BaseModel(metaclass=abc.ABCMeta):
-    model: Any = None
-    processor: Any = None
-    tokenizer: Any = None
+class BaseModel(LoaderBaseModel):
     streamer: Any = None
-
-    @abc.abstractmethod
-    def load_model(self, model_path: str, device: str):
-        pass
 
     @abc.abstractmethod
     def generate_prompt(self, instruction: str):
@@ -19,4 +13,3 @@ class BaseModel(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def chat(self, history, max_tokens, temperature, top_p, slider_context_times):
         pass
-

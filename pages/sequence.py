@@ -3,7 +3,7 @@ from pages.sequences import llm, mt, embedding
 
 
 def reload_default_model():
-    llm.llm.reload_model(default=True)
+    llm.llm.load_model(default=True)
 
 
 def create_ui(params: dict):

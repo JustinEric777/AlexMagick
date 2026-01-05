@@ -7,10 +7,17 @@ from zonos.conditioning import make_cond_dict
 
 
 class ZonosTTSModel(BaseModel):
-    def load_model(self, model_path: str, device: str):
-        config_path = os.path.join(model_path, "config.json")
-        model_path = os.path.join(model_path, "model.safetensors")
-        model = Zonos.from_local(config_path, model_path, device=device.lower())
+    def load_model(self, model_path: str, device: str, **kwargs):
+        # Handle cases where model_path points to directory or file
+        if os.path.isdir(model_path):
+            config_path = os.path.join(model_path, "config.json")
+            weights_path = os.path.join(model_path, "model.safetensors")
+        else:
+            # Assume model_path is the weights file, guess config
+            weights_path = model_path
+            config_path = os.path.join(os.path.dirname(model_path), "config.json")
+            
+        model = Zonos.from_local(config_path, weights_path, device=device.lower())
 
         self.device = device
         self.model = model

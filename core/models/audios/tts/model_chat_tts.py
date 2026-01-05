@@ -137,7 +137,7 @@ ChatTTS.model.gpt.GPT._prepare_generation_inputs = _prepare_generation_inputs_fi
 
 
 class ChatTTSModel(BaseModel):
-    def load_model(self, model_path: str, device: str):
+    def load_model(self, model_path: str, device: str, **kwargs):
         model = ChatTTS.Chat()
         model.load(
             source="local",

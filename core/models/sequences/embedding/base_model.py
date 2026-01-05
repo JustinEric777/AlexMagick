@@ -1,18 +1,11 @@
 import abc
 from typing import Any
+from core.models.loader import BaseModel as LoaderBaseModel
 
 
-class BaseModel(metaclass=abc.ABCMeta):
-    model: Any = None
-    tokenizer: Any = None
-    device: Any = None
+class BaseModel(LoaderBaseModel):
     pooling_method: Any = None
-
-    @abc.abstractmethod
-    def load_model(self, model_path: str, device: str):
-        pass
 
     @abc.abstractmethod
     def encode(self, text: str):
         pass
-

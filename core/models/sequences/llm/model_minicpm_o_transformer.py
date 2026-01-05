@@ -15,7 +15,7 @@ class MiniCPMOTransformerModel(BaseModel):
             model_path,
             trust_remote_code=True,
             attn_implementation='sdpa',
-            torch_dtype=torch.bfloat16,
+            dtype=torch.bfloat16,
             init_vision=True,
             init_audio=True,
             init_tts=True

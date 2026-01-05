@@ -1,34 +1,14 @@
 import time
 from typing import Any
 from core.models.sequences.llm.base_model import BaseModel
-from core.models.backends.torch import TorchBackend
-from core.models.backends.llamacpp import LlamaCppBackend
-from core.models.backends.openvino import OpenVINOBackend
+from core.models.backends.loader import BackendLoader
 
 class DeepSeekModel(BaseModel):
     def load_model(self, model_path: str, device: str, backend: str = "transformer", **kwargs):
-        if backend == "transformer" or backend == "pytorch":
-            self.backend = TorchBackend(device=device)
-            # Default DeepSeek torch params
-            if "torch_dtype" not in kwargs:
-                import torch
-                kwargs["torch_dtype"] = torch.bfloat16
-            kwargs.setdefault("trust_remote_code", True)
-            if device != "cpu":
-                kwargs.setdefault("device_map", device.lower())
-                
-        elif backend == "llama_cpp":
-            self.backend = LlamaCppBackend(device=device)
-            kwargs.setdefault("n_ctx", 2048)
-            
-        elif backend == "openvino":
-            self.backend = OpenVINOBackend(device=device)
-            kwargs.setdefault("version", "opset8")
-            
-        else:
-            raise ValueError(f"Unsupported backend for DeepSeek: {backend}")
-
-        self.backend.load_text_generation(model_path, **kwargs)
+        # Use centralized Loader to init backend and load model
+        # The loader now handles default params for each backend (like dtype, trust_remote_code, etc.)
+        self.backend = BackendLoader.load(backend, device, model_path, **kwargs)
+        
         self.model = self.backend.model
         if hasattr(self.backend, "tokenizer"):
             self.tokenizer = self.backend.tokenizer

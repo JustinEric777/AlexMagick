@@ -5,8 +5,8 @@ from core.models.images.text2img.base_model import BaseModel
 
 class ModelStableDiffusionXL(BaseModel):
     def load_model(self, model_path: str, device: str):
-        device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+        # device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        dtype = torch.float16 if torch.cuda.is_available() and device != "cpu" else torch.float32
 
         pipline = StableDiffusionXLPipeline.from_pretrained(
             model_path,
@@ -19,7 +19,7 @@ class ModelStableDiffusionXL(BaseModel):
         self.pipline = pipline
         self.device = device
 
-    def generate(self, prompt, negative_prompt, seed, guidance_scale, num_inference_steps, height, width):
+    def _generate(self, prompt, negative_prompt, seed, guidance_scale, num_inference_steps, height, width):
         generator = torch.Generator(self.device).manual_seed(seed)
         image = self.pipline(
             prompt=prompt,

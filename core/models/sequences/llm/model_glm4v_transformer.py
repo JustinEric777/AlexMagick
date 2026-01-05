@@ -1,24 +1,26 @@
 import time
 import torch
 from threading import Thread
-from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
+from transformers import TextIteratorStreamer
 
 from core.models.sequences.llm.base_model import BaseModel
+from core.models.backends.loader import BackendLoader
 
 
 class Glm4vTransformerModel(BaseModel):
-    def load_model(self, model_path: str, device: str):
-        tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-        model = AutoModelForCausalLM.from_pretrained(model_path,
-                                                     device_map="auto",
-                                                     torch_dtype=torch.bfloat16,
-                                                     low_cpu_mem_usage=True,
-                                                     trust_remote_code=True)
-        model.eval()
-        streamer = TextIteratorStreamer(tokenizer, skip_prompt=True)
-        self.model = model
-        self.tokenizer = tokenizer
-        self.streamer = streamer
+    def load_model(self, model_path: str, device: str, backend: str = "transformer", **kwargs):
+        # GLM4v specific defaults
+        if "device_map" not in kwargs:
+             kwargs["device_map"] = "auto"
+        
+        # Use BackendLoader
+        self.backend = BackendLoader.load(backend, device, model_path, **kwargs)
+        
+        self.model = self.backend.model
+        self.tokenizer = self.backend.tokenizer
+        
+        # Re-create streamer as it was used in the original implementation
+        self.streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True)
 
     def generate_prompt(self, instruction: str):
         return f"""
@@ -83,4 +85,5 @@ class Glm4vTransformerModel(BaseModel):
         del self.model
         del self.streamer
         del self.tokenizer
-
+        if hasattr(self, 'backend'):
+            del self.backend

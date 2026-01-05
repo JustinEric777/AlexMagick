@@ -3,7 +3,7 @@ from pages.images import text2img, img2img, inpainting
 
 
 def reload_default_model():
-    text2img.text2img.reload_model(default=True)
+    text2img.text2img.load_model(default=True)
 
 
 def create_ui(params: dict):

@@ -1,6 +1,6 @@
 from typing import Dict, Any
 
-TASK_TYPE = "image-text2img"
+TASK_TYPE = "text2img"
 
 MODEL_LIST: Dict[str, Any] = {
     "Pytorch": {
@@ -35,7 +35,31 @@ MODEL_LIST: Dict[str, Any] = {
             "model_list": [
                 "stable-diffusion-3-medium-diffusers"
             ]
+        },
+        "Flux": {
+             "model_provider_path": "core.models.images.text2img.model_flux",
+             "model_provider_name": "ModelFlux",
+             "model_path": "/data/models/image_gen",
+             "model_list": [
+                 "flux1-dev"
+             ]
+        },
+        "HunyuanDiT": {
+             "model_provider_path": "core.models.images.text2img.model_hunyuan_dit",
+             "model_provider_name": "ModelHunyuanDiT",
+             "model_path": "/data/models/image_gen",
+             "model_list": [
+                 "HunyuanDiT-v1.2-Diffusers"
+             ]
+        },
+        "Kolors": {
+             "model_provider_path": "core.models.images.text2img.model_kolors",
+             "model_provider_name": "ModelKolors",
+             "model_path": "/data/models/image_gen",
+             "model_list": [
+                 "Kolors",
+                 "Kolors-IP-Adapter-Plus"
+             ]
         }
     }
-
 }
